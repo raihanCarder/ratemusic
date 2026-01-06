@@ -8,6 +8,10 @@ import Image from "next/image";
 type AlbumCardProps = { album: Album };
 
 export default function AlbumCard({ album }: AlbumCardProps) {
+  /*
+    AlbumCard are Card's shown on Discovery page that represent each album.
+    Information shown includes image, name, and artist,
+  */
   return (
     <Box
       key={album.id}

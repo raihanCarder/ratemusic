@@ -12,6 +12,10 @@ import Typography from "@mui/material/Typography";
 import NavLink from "./NavLink";
 
 export default function Nav() {
+  /*
+    Navigation bar at the top of site. Contains Nav Links, SearchBar, Sign-in Button,
+    Logo and title.
+  */
   return (
     <AppBar
       position="sticky"

@@ -1,64 +1,147 @@
 import type { Album } from "@/types/album";
+
 const sampleData: Album[] = [
   {
     id: "blonde",
     title: "Blonde",
     artist: "Frank Ocean",
     image: "https://picsum.photos/seed/blonde/300/300",
+    songs: [
+      { id: "blonde-01", title: "Nikes", durationMs: 321000 },
+      { id: "blonde-02", title: "Ivy", durationMs: 249000 },
+      { id: "blonde-03", title: "Pink + White", durationMs: 184000 },
+      { id: "blonde-04", title: "Solo", durationMs: 257000 },
+      { id: "blonde-05", title: "Nights", durationMs: 307000 },
+    ],
   },
   {
     id: "damn",
     title: "DAMN.",
     artist: "Kendrick Lamar",
     image: "https://picsum.photos/seed/damn/300/300",
+    songs: [
+      { id: "damn-01", title: "BLOOD.", durationMs: 118000 },
+      { id: "damn-02", title: "DNA.", durationMs: 185000 },
+      { id: "damn-03", title: "ELEMENT.", durationMs: 208000 },
+      { id: "damn-04", title: "HUMBLE.", durationMs: 177000 },
+      { id: "damn-05", title: "DUCKWORTH.", durationMs: 248000 },
+    ],
   },
   {
     id: "after-hours",
     title: "After Hours",
     artist: "The Weeknd",
     image: "https://picsum.photos/seed/afterhours/300/300",
+    songs: [
+      { id: "after-hours-01", title: "Alone Again", durationMs: 250000 },
+      { id: "after-hours-02", title: "Too Late", durationMs: 239000 },
+      { id: "after-hours-03", title: "Hardest To Love", durationMs: 211000 },
+      { id: "after-hours-04", title: "Blinding Lights", durationMs: 200000 },
+      { id: "after-hours-05", title: "After Hours", durationMs: 361000 },
+    ],
   },
   {
     id: "discovery",
     title: "Discovery",
     artist: "Daft Punk",
     image: "https://picsum.photos/seed/discovery/300/300",
+    songs: [
+      { id: "discovery-01", title: "One More Time", durationMs: 320000 },
+      { id: "discovery-02", title: "Aerodynamic", durationMs: 213000 },
+      { id: "discovery-03", title: "Digital Love", durationMs: 301000 },
+      {
+        id: "discovery-04",
+        title: "Harder, Better, Faster, Stronger",
+        durationMs: 224000,
+      },
+      { id: "discovery-05", title: "Something About Us", durationMs: 232000 },
+    ],
   },
   {
     id: "igor",
     title: "IGOR",
     artist: "Tyler, The Creator",
     image: "https://picsum.photos/seed/igor/300/300",
+    songs: [
+      { id: "igor-01", title: "IGOR'S THEME", durationMs: 201000 },
+      { id: "igor-02", title: "EARFQUAKE", durationMs: 190000 },
+      { id: "igor-03", title: "I THINK", durationMs: 212000 },
+      { id: "igor-04", title: "A BOY IS A GUN*", durationMs: 210000 },
+      { id: "igor-05", title: "ARE WE STILL FRIENDS?", durationMs: 265000 },
+    ],
   },
   {
     id: "melodrama",
     title: "Melodrama",
     artist: "Lorde",
     image: "https://picsum.photos/seed/melodrama/300/300",
+    songs: [
+      { id: "melodrama-01", title: "Green Light", durationMs: 234000 },
+      { id: "melodrama-02", title: "Sober", durationMs: 197000 },
+      { id: "melodrama-03", title: "Homemade Dynamite", durationMs: 189000 },
+      { id: "melodrama-04", title: "Liability", durationMs: 172000 },
+      { id: "melodrama-05", title: "Perfect Places", durationMs: 221000 },
+    ],
   },
   {
     id: "currents",
     title: "Currents",
     artist: "Tame Impala",
     image: "https://picsum.photos/seed/currents/300/300",
+    songs: [
+      { id: "currents-01", title: "Let It Happen", durationMs: 468000 },
+      { id: "currents-02", title: "Nangs", durationMs: 107000 },
+      { id: "currents-03", title: "The Moment", durationMs: 255000 },
+      { id: "currents-04", title: "Yes I'm Changing", durationMs: 270000 },
+      { id: "currents-05", title: "Eventually", durationMs: 320000 },
+    ],
   },
   {
     id: "channel-orange",
     title: "Channel Orange",
     artist: "Frank Ocean",
     image: "https://picsum.photos/seed/channelorange/300/300",
+    songs: [
+      {
+        id: "channel-orange-01",
+        title: "Thinkin Bout You",
+        durationMs: 201000,
+      },
+      { id: "channel-orange-02", title: "Pyramids", durationMs: 594000 },
+      { id: "channel-orange-03", title: "Sweet Life", durationMs: 262000 },
+      { id: "channel-orange-04", title: "Lost", durationMs: 234000 },
+      { id: "channel-orange-05", title: "Bad Religion", durationMs: 176000 },
+    ],
   },
   {
     id: "good-kid-maad-city",
     title: "good kid, m.A.A.d city",
     artist: "Kendrick Lamar",
     image: "https://picsum.photos/seed/gkmc/300/300",
+    songs: [
+      {
+        id: "gkmc-01",
+        title: "Sherane a.k.a Master Splinter’s Daughter",
+        durationMs: 273000,
+      },
+      { id: "gkmc-02", title: "Bitch, Don’t Kill My Vibe", durationMs: 311000 },
+      { id: "gkmc-03", title: "Backseat Freestyle", durationMs: 212000 },
+      { id: "gkmc-04", title: "Money Trees", durationMs: 386000 },
+      { id: "gkmc-05", title: "m.A.A.d city", durationMs: 350000 },
+    ],
   },
   {
     id: "yeezus",
     title: "Yeezus",
     artist: "Kanye West",
     image: "https://picsum.photos/seed/yeezus/300/300",
+    songs: [
+      { id: "yeezus-01", title: "On Sight", durationMs: 155000 },
+      { id: "yeezus-02", title: "Black Skinhead", durationMs: 188000 },
+      { id: "yeezus-03", title: "I Am A God", durationMs: 201000 },
+      { id: "yeezus-04", title: "New Slaves", durationMs: 256000 },
+      { id: "yeezus-05", title: "Bound 2", durationMs: 229000 },
+    ],
   },
 
   {
@@ -66,30 +149,69 @@ const sampleData: Album[] = [
     title: "The Dark Side of the Moon",
     artist: "Pink Floyd",
     image: "https://picsum.photos/seed/darkside/300/300",
+    songs: [
+      { id: "darkside-01", title: "Speak to Me", durationMs: 90000 },
+      { id: "darkside-02", title: "Breathe (In the Air)", durationMs: 163000 },
+      { id: "darkside-03", title: "Time", durationMs: 414000 },
+      { id: "darkside-04", title: "Money", durationMs: 382000 },
+      { id: "darkside-05", title: "Us and Them", durationMs: 462000 },
+    ],
   },
   {
     id: "abbey-road",
     title: "Abbey Road",
     artist: "The Beatles",
     image: "https://picsum.photos/seed/abbeyroad/300/300",
+    songs: [
+      { id: "abbey-01", title: "Come Together", durationMs: 259000 },
+      { id: "abbey-02", title: "Something", durationMs: 183000 },
+      { id: "abbey-03", title: "Oh! Darling", durationMs: 207000 },
+      { id: "abbey-04", title: "Here Comes the Sun", durationMs: 185000 },
+      { id: "abbey-05", title: "The End", durationMs: 141000 },
+    ],
   },
   {
     id: "rumours",
     title: "Rumours",
     artist: "Fleetwood Mac",
     image: "https://picsum.photos/seed/rumours/300/300",
+    songs: [
+      { id: "rumours-01", title: "Second Hand News", durationMs: 164000 },
+      { id: "rumours-02", title: "Dreams", durationMs: 257000 },
+      { id: "rumours-03", title: "Go Your Own Way", durationMs: 223000 },
+      { id: "rumours-04", title: "The Chain", durationMs: 270000 },
+      { id: "rumours-05", title: "Gold Dust Woman", durationMs: 300000 },
+    ],
   },
   {
     id: "thriller",
     title: "Thriller",
     artist: "Michael Jackson",
     image: "https://picsum.photos/seed/thriller/300/300",
+    songs: [
+      {
+        id: "thriller-01",
+        title: "Wanna Be Startin' Somethin'",
+        durationMs: 362000,
+      },
+      { id: "thriller-02", title: "Thriller", durationMs: 357000 },
+      { id: "thriller-03", title: "Beat It", durationMs: 258000 },
+      { id: "thriller-04", title: "Billie Jean", durationMs: 294000 },
+      { id: "thriller-05", title: "Human Nature", durationMs: 246000 },
+    ],
   },
   {
     id: "purple-rain",
     title: "Purple Rain",
     artist: "Prince",
     image: "https://picsum.photos/seed/purplerain/300/300",
+    songs: [
+      { id: "purplerain-01", title: "Let's Go Crazy", durationMs: 280000 },
+      { id: "purplerain-02", title: "Take Me with U", durationMs: 226000 },
+      { id: "purplerain-03", title: "When Doves Cry", durationMs: 352000 },
+      { id: "purplerain-04", title: "I Would Die 4 U", durationMs: 170000 },
+      { id: "purplerain-05", title: "Purple Rain", durationMs: 520000 },
+    ],
   },
 
   {
@@ -97,30 +219,81 @@ const sampleData: Album[] = [
     title: "In Rainbows",
     artist: "Radiohead",
     image: "https://picsum.photos/seed/inrainbows/300/300",
+    songs: [
+      { id: "inrainbows-01", title: "15 Step", durationMs: 238000 },
+      { id: "inrainbows-02", title: "Bodysnatchers", durationMs: 242000 },
+      { id: "inrainbows-03", title: "Nude", durationMs: 255000 },
+      {
+        id: "inrainbows-04",
+        title: "Weird Fishes/Arpeggi",
+        durationMs: 318000,
+      },
+      {
+        id: "inrainbows-05",
+        title: "Jigsaw Falling Into Place",
+        durationMs: 249000,
+      },
+    ],
   },
   {
     id: "ok-computer",
     title: "OK Computer",
     artist: "Radiohead",
     image: "https://picsum.photos/seed/okcomputer/300/300",
+    songs: [
+      { id: "okc-01", title: "Airbag", durationMs: 284000 },
+      { id: "okc-02", title: "Paranoid Android", durationMs: 388000 },
+      { id: "okc-03", title: "Karma Police", durationMs: 260000 },
+      { id: "okc-04", title: "No Surprises", durationMs: 229000 },
+      { id: "okc-05", title: "Lucky", durationMs: 259000 },
+    ],
   },
   {
     id: "kid-a",
     title: "Kid A",
     artist: "Radiohead",
     image: "https://picsum.photos/seed/kida/300/300",
+    songs: [
+      {
+        id: "kida-01",
+        title: "Everything In Its Right Place",
+        durationMs: 251000,
+      },
+      { id: "kida-02", title: "Kid A", durationMs: 284000 },
+      { id: "kida-03", title: "The National Anthem", durationMs: 352000 },
+      {
+        id: "kida-04",
+        title: "How to Disappear Completely",
+        durationMs: 356000,
+      },
+      { id: "kida-05", title: "Motion Picture Soundtrack", durationMs: 189000 },
+    ],
   },
   {
     id: "graduation",
     title: "Graduation",
     artist: "Kanye West",
     image: "https://picsum.photos/seed/graduation/300/300",
+    songs: [
+      { id: "graduation-01", title: "Good Morning", durationMs: 196000 },
+      { id: "graduation-02", title: "Stronger", durationMs: 312000 },
+      { id: "graduation-03", title: "I Wonder", durationMs: 244000 },
+      { id: "graduation-04", title: "Homecoming", durationMs: 203000 },
+      { id: "graduation-05", title: "Flashing Lights", durationMs: 238000 },
+    ],
   },
   {
     id: "late-registration",
     title: "Late Registration",
     artist: "Kanye West",
     image: "https://picsum.photos/seed/latereg/300/300",
+    songs: [
+      { id: "latereg-01", title: "Heard 'Em Say", durationMs: 203000 },
+      { id: "latereg-02", title: "Touch the Sky", durationMs: 236000 },
+      { id: "latereg-03", title: "Gold Digger", durationMs: 207000 },
+      { id: "latereg-04", title: "Hey Mama", durationMs: 305000 },
+      { id: "latereg-05", title: "Gone", durationMs: 331000 },
+    ],
   },
 
   {
@@ -128,18 +301,43 @@ const sampleData: Album[] = [
     title: "Born to Die",
     artist: "Lana Del Rey",
     image: "https://picsum.photos/seed/borntodie/300/300",
+    songs: [
+      { id: "borntodie-01", title: "Born to Die", durationMs: 286000 },
+      { id: "borntodie-02", title: "Off to the Races", durationMs: 300000 },
+      { id: "borntodie-03", title: "Blue Jeans", durationMs: 210000 },
+      { id: "borntodie-04", title: "Video Games", durationMs: 282000 },
+      { id: "borntodie-05", title: "Summertime Sadness", durationMs: 245000 },
+    ],
   },
   {
     id: "norman-rockwell",
     title: "Norman F***ing Rockwell!",
     artist: "Lana Del Rey",
     image: "https://picsum.photos/seed/nfr/300/300",
+    songs: [
+      { id: "nfr-01", title: "Norman F***ing Rockwell", durationMs: 248000 },
+      { id: "nfr-02", title: "Mariners Apartment Complex", durationMs: 243000 },
+      { id: "nfr-03", title: "Venice Bitch", durationMs: 578000 },
+      { id: "nfr-04", title: "Doin' Time", durationMs: 201000 },
+      {
+        id: "nfr-05",
+        title: "Hope Is a Dangerous Thing...",
+        durationMs: 322000,
+      },
+    ],
   },
   {
     id: "ultraviolence",
     title: "Ultraviolence",
     artist: "Lana Del Rey",
     image: "https://picsum.photos/seed/ultraviolence/300/300",
+    songs: [
+      { id: "ultra-01", title: "Cruel World", durationMs: 399000 },
+      { id: "ultra-02", title: "Ultraviolence", durationMs: 256000 },
+      { id: "ultra-03", title: "Shades of Cool", durationMs: 323000 },
+      { id: "ultra-04", title: "West Coast", durationMs: 256000 },
+      { id: "ultra-05", title: "Brooklyn Baby", durationMs: 352000 },
+    ],
   },
 
   {
@@ -147,12 +345,30 @@ const sampleData: Album[] = [
     title: "House of Balloons",
     artist: "The Weeknd",
     image: "https://picsum.photos/seed/houseofballoons/300/300",
+    songs: [
+      { id: "hob-01", title: "High for This", durationMs: 247000 },
+      { id: "hob-02", title: "What You Need", durationMs: 206000 },
+      {
+        id: "hob-03",
+        title: "House of Balloons / Glass Table Girls",
+        durationMs: 406000,
+      },
+      { id: "hob-04", title: "The Morning", durationMs: 315000 },
+      { id: "hob-05", title: "Wicked Games", durationMs: 304000 },
+    ],
   },
   {
     id: "starboy",
     title: "Starboy",
     artist: "The Weeknd",
     image: "https://picsum.photos/seed/starboy/300/300",
+    songs: [
+      { id: "starboy-01", title: "Starboy", durationMs: 230000 },
+      { id: "starboy-02", title: "Party Monster", durationMs: 249000 },
+      { id: "starboy-03", title: "False Alarm", durationMs: 220000 },
+      { id: "starboy-04", title: "Reminder", durationMs: 218000 },
+      { id: "starboy-05", title: "I Feel It Coming", durationMs: 269000 },
+    ],
   },
 
   {
@@ -160,12 +376,26 @@ const sampleData: Album[] = [
     title: "My Beautiful Dark Twisted Fantasy",
     artist: "Kanye West",
     image: "https://picsum.photos/seed/mbdtf/300/300",
+    songs: [
+      { id: "mbdtf-01", title: "Dark Fantasy", durationMs: 280000 },
+      { id: "mbdtf-02", title: "Gorgeous", durationMs: 357000 },
+      { id: "mbdtf-03", title: "POWER", durationMs: 292000 },
+      { id: "mbdtf-04", title: "Runaway", durationMs: 548000 },
+      { id: "mbdtf-05", title: "Lost in the World", durationMs: 257000 },
+    ],
   },
   {
     id: "watch-the-throne",
     title: "Watch the Throne",
     artist: "Jay-Z & Kanye West",
     image: "https://picsum.photos/seed/watchthethrone/300/300",
+    songs: [
+      { id: "wtt-01", title: "No Church in the Wild", durationMs: 272000 },
+      { id: "wtt-02", title: "Niggas in Paris", durationMs: 219000 },
+      { id: "wtt-03", title: "Otis", durationMs: 178000 },
+      { id: "wtt-04", title: "Gotta Have It", durationMs: 141000 },
+      { id: "wtt-05", title: "Made in America", durationMs: 232000 },
+    ],
   },
 
   {
@@ -173,18 +403,47 @@ const sampleData: Album[] = [
     title: "Blue",
     artist: "Joni Mitchell",
     image: "https://picsum.photos/seed/bluejoni/300/300",
+    songs: [
+      { id: "blue-01", title: "All I Want", durationMs: 212000 },
+      { id: "blue-02", title: "My Old Man", durationMs: 214000 },
+      { id: "blue-03", title: "River", durationMs: 240000 },
+      { id: "blue-04", title: "A Case of You", durationMs: 262000 },
+      {
+        id: "blue-05",
+        title: "The Last Time I Saw Richard",
+        durationMs: 250000,
+      },
+    ],
   },
   {
     id: "nevermind",
     title: "Nevermind",
     artist: "Nirvana",
     image: "https://picsum.photos/seed/nevermind/300/300",
+    songs: [
+      {
+        id: "nevermind-01",
+        title: "Smells Like Teen Spirit",
+        durationMs: 301000,
+      },
+      { id: "nevermind-02", title: "In Bloom", durationMs: 255000 },
+      { id: "nevermind-03", title: "Come as You Are", durationMs: 219000 },
+      { id: "nevermind-04", title: "Lithium", durationMs: 257000 },
+      { id: "nevermind-05", title: "Something in the Way", durationMs: 232000 },
+    ],
   },
   {
     id: "back-to-black",
     title: "Back to Black",
     artist: "Amy Winehouse",
     image: "https://picsum.photos/seed/backtoblack/300/300",
+    songs: [
+      { id: "btb-01", title: "Rehab", durationMs: 214000 },
+      { id: "btb-02", title: "You Know I'm No Good", durationMs: 257000 },
+      { id: "btb-03", title: "Back to Black", durationMs: 241000 },
+      { id: "btb-04", title: "Love Is a Losing Game", durationMs: 153000 },
+      { id: "btb-05", title: "Tears Dry on Their Own", durationMs: 186000 },
+    ],
   },
 
   {
@@ -192,18 +451,51 @@ const sampleData: Album[] = [
     title: "Pet Sounds",
     artist: "The Beach Boys",
     image: "https://picsum.photos/seed/petsounds/300/300",
+    songs: [
+      { id: "petsounds-01", title: "Wouldn't It Be Nice", durationMs: 142000 },
+      {
+        id: "petsounds-02",
+        title: "You Still Believe in Me",
+        durationMs: 155000,
+      },
+      { id: "petsounds-03", title: "God Only Knows", durationMs: 177000 },
+      {
+        id: "petsounds-04",
+        title: "I Just Wasn't Made for These Times",
+        durationMs: 203000,
+      },
+      { id: "petsounds-05", title: "Caroline, No", durationMs: 166000 },
+    ],
   },
   {
     id: "low",
     title: "Low",
     artist: "David Bowie",
     image: "https://picsum.photos/seed/lowbowie/300/300",
+    songs: [
+      { id: "low-01", title: "Speed of Life", durationMs: 165000 },
+      { id: "low-02", title: "Breaking Glass", durationMs: 110000 },
+      { id: "low-03", title: "Sound and Vision", durationMs: 183000 },
+      { id: "low-04", title: "Warszawa", durationMs: 383000 },
+      { id: "low-05", title: "Subterraneans", durationMs: 340000 },
+    ],
   },
   {
     id: "heroes",
     title: "Heroes",
     artist: "David Bowie",
     image: "https://picsum.photos/seed/heroes/300/300",
+    songs: [
+      { id: "heroes-01", title: "Heroes", durationMs: 372000 },
+      { id: "heroes-02", title: "V-2 Schneider", durationMs: 197000 },
+      { id: "heroes-03", title: "Beauty and the Beast", durationMs: 212000 },
+      { id: "heroes-04", title: "Joe the Lion", durationMs: 173000 },
+      {
+        id: "heroes-05",
+        title: "The Secret Life of Arabia",
+        durationMs: 207000,
+      },
+    ],
   },
 
   {
@@ -211,12 +503,26 @@ const sampleData: Album[] = [
     title: "Vespertine",
     artist: "Björk",
     image: "https://picsum.photos/seed/vespertine/300/300",
+    songs: [
+      { id: "vespertine-01", title: "Hidden Place", durationMs: 292000 },
+      { id: "vespertine-02", title: "Cocoon", durationMs: 270000 },
+      { id: "vespertine-03", title: "Pagan Poetry", durationMs: 307000 },
+      { id: "vespertine-04", title: "It's Not Up to You", durationMs: 341000 },
+      { id: "vespertine-05", title: "Unison", durationMs: 410000 },
+    ],
   },
   {
     id: "homogenic",
     title: "Homogenic",
     artist: "Björk",
     image: "https://picsum.photos/seed/homogenic/300/300",
+    songs: [
+      { id: "homogenic-01", title: "Hunter", durationMs: 248000 },
+      { id: "homogenic-02", title: "Jóga", durationMs: 309000 },
+      { id: "homogenic-03", title: "Bachelorette", durationMs: 316000 },
+      { id: "homogenic-04", title: "Unravel", durationMs: 239000 },
+      { id: "homogenic-05", title: "All Is Full of Love", durationMs: 266000 },
+    ],
   },
 
   {
@@ -224,18 +530,43 @@ const sampleData: Album[] = [
     title: "Random Access Memories",
     artist: "Daft Punk",
     image: "https://picsum.photos/seed/ram/300/300",
+    songs: [
+      { id: "ram-01", title: "Give Life Back to Music", durationMs: 274000 },
+      { id: "ram-02", title: "Get Lucky", durationMs: 369000 },
+      { id: "ram-03", title: "Instant Crush", durationMs: 337000 },
+      { id: "ram-04", title: "Lose Yourself to Dance", durationMs: 335000 },
+      { id: "ram-05", title: "Contact", durationMs: 379000 },
+    ],
   },
   {
     id: "sound-of-silver",
     title: "Sound of Silver",
     artist: "LCD Soundsystem",
     image: "https://picsum.photos/seed/soundofsilver/300/300",
+    songs: [
+      { id: "sos-01", title: "Get Innocuous!", durationMs: 431000 },
+      { id: "sos-02", title: "Someone Great", durationMs: 386000 },
+      { id: "sos-03", title: "All My Friends", durationMs: 446000 },
+      { id: "sos-04", title: "Us v Them", durationMs: 511000 },
+      {
+        id: "sos-05",
+        title: "New York, I Love You but You're Bringing Me Down",
+        durationMs: 334000,
+      },
+    ],
   },
   {
     id: "this-is-happening",
     title: "This Is Happening",
     artist: "LCD Soundsystem",
     image: "https://picsum.photos/seed/thisishappening/300/300",
+    songs: [
+      { id: "tih-01", title: "Dance Yrself Clean", durationMs: 536000 },
+      { id: "tih-02", title: "Drunk Girls", durationMs: 240000 },
+      { id: "tih-03", title: "One Touch", durationMs: 450000 },
+      { id: "tih-04", title: "All I Want", durationMs: 392000 },
+      { id: "tih-05", title: "Home", durationMs: 462000 },
+    ],
   },
 
   {
@@ -243,12 +574,26 @@ const sampleData: Album[] = [
     title: "For Emma, Forever Ago",
     artist: "Bon Iver",
     image: "https://picsum.photos/seed/foremma/300/300",
+    songs: [
+      { id: "foremma-01", title: "Flume", durationMs: 219000 },
+      { id: "foremma-02", title: "Skinny Love", durationMs: 238000 },
+      { id: "foremma-03", title: "Re: Stacks", durationMs: 401000 },
+      { id: "foremma-04", title: "Creature Fear", durationMs: 213000 },
+      { id: "foremma-05", title: "For Emma", durationMs: 219000 },
+    ],
   },
   {
     id: "22-a-million",
     title: "22, A Million",
     artist: "Bon Iver",
     image: "https://picsum.photos/seed/22amillion/300/300",
+    songs: [
+      { id: "22am-01", title: "22 (OVER S∞∞N)", durationMs: 230000 },
+      { id: "22am-02", title: "10 d E A T h b R E a S T", durationMs: 350000 },
+      { id: "22am-03", title: "29 #Strafford APTS", durationMs: 241000 },
+      { id: "22am-04", title: "33 “GOD”", durationMs: 214000 },
+      { id: "22am-05", title: "00000 Million", durationMs: 212000 },
+    ],
   },
 
   {
@@ -256,6 +601,13 @@ const sampleData: Album[] = [
     title: "Atlas",
     artist: "Real Estate",
     image: "https://picsum.photos/seed/atlas/300/300",
+    songs: [
+      { id: "atlas-01", title: "Had to Hear", durationMs: 249000 },
+      { id: "atlas-02", title: "Talking Backwards", durationMs: 201000 },
+      { id: "atlas-03", title: "April's Song", durationMs: 265000 },
+      { id: "atlas-04", title: "Crime", durationMs: 238000 },
+      { id: "atlas-05", title: "Hanging On", durationMs: 216000 },
+    ],
   },
 ];
 

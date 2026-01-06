@@ -11,6 +11,9 @@ type SongViewProps = {
 };
 
 export default function SongView({ idx, song, albumLength }: SongViewProps) {
+  /*
+    Song design for each song shown on AlbumView.
+  */
   return (
     <Box key={song.id}>
       <ListItem>

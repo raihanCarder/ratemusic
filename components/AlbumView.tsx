@@ -10,7 +10,10 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import SongView from "./SongView";
 
-export default function AlbumDetailView({ album }: { album: Album }) {
+export default function AlbumView({ album }: { album: Album }) {
+  /*
+    AlbumView is Shown when you want a view of an album and all it's information.
+  */
   const songs = album.songs ?? [];
   const albumLength = songs.length;
 

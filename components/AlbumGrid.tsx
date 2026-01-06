@@ -3,9 +3,16 @@
 import type { Album } from "@/types/album";
 import Box from "@mui/material/Box";
 import AlbumCard from "./AlbumCard";
+import Link from "next/link";
 type AlbumGridProps = { albums: Album[] };
 
 export default function AlbumGrid({ albums }: AlbumGridProps) {
+  /*
+    Grid view shown on Discovery Page. Each AlbumCard surrounded with Link that let's
+    user go straight to a page with that album. Link uses album id to create link to 
+    seperate page.
+  */
+
   return (
     <main>
       <Box
@@ -21,7 +28,9 @@ export default function AlbumGrid({ albums }: AlbumGridProps) {
           }}
         >
           {albums.map((album) => (
-            <AlbumCard key={album.id} album={album} />
+            <Link key={album.id} href={`/album/${album.id}`}>
+              <AlbumCard album={album} />
+            </Link>
           ))}
         </Box>
       </Box>

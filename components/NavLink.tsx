@@ -9,6 +9,9 @@ type NavLinkProps = {
 };
 
 export default function NavLink({ href, name }: NavLinkProps) {
+  /*
+    Link's Nav button's to correct reference.
+  */
   return (
     <Button
       component={Link}

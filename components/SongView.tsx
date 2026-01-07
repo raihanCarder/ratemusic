@@ -1,3 +1,5 @@
+"use client";
+
 import { Song } from "@/types/song";
 import Box from "@mui/material/Box";
 import ListItem from "@mui/material/ListItem";

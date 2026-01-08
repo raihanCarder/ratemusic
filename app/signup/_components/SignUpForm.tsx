@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
+import signUpUser from "../actions";
+import { useRouter } from "next/navigation";
 
 export default function SignUpForm() {
   const [formError, setFormError] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const fd = new FormData(e.currentTarget);
@@ -19,9 +22,13 @@ export default function SignUpForm() {
       return;
     }
 
-    console.log({ email, password, username });
+    const newUser = await signUpUser({ email, password, username });
 
-    // TODO: Check if username or email is already in system. if so then error
+    if (newUser.success) {
+      router.push("/feed");
+    } else {
+      setFormError(newUser.message);
+    }
   };
 
   return (

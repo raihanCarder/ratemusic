@@ -37,6 +37,7 @@ export default function SignOutButton() {
         px: 2,
       }}
       onClick={handleSubmit}
+      color="error"
     >
       {isPending ? <Loader2 className="animate-spin" /> : "Sign out"}
     </Button>

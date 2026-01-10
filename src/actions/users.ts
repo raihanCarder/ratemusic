@@ -22,6 +22,10 @@ export async function signUpUserAction({
 
     if (error) throw error;
 
+    //TODO: Make it check if account already has username .
+    // If so then make a custom error message as currently even if acct exists
+    // errorMessage will be null
+
     return { errorMessage: null };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Something went wrong";

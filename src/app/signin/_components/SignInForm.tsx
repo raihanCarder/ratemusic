@@ -2,13 +2,17 @@
 import { useState } from "react";
 
 import { Box, Button, TextField, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { signInUserAction } from "@/src/actions/users";
+import toast from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 
 export default function SignInForm() {
-  /*
-   * Sign-In Form used in Sign-in page. Sign-in includes password and email.
-   */
-
   const [formError, setFormError] = useState<string | null>(null);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -16,19 +20,26 @@ export default function SignInForm() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    console.log({ email, password });
-  };
-  // const { error } = await supabase.auth.signInWithPassword({
-  //   email,
-  //   password,
-  // });
+    if (!email || !password) {
+      setFormError("Please fill in all fields.");
+      return;
+    }
 
-  // if (error) {
-  //   setFormError("Invalid Email or Password");
-  //   return;
-  // } else {
-  //   // TODO: Implement sign in with account information
-  // }
+    startTransition(async () => {
+      const { errorMessage } = await signInUserAction({
+        email,
+        password,
+      });
+
+      if (errorMessage) {
+        setFormError(errorMessage);
+      } else {
+        router.push("/feed");
+        toast.success("User signed in!");
+      }
+    });
+  };
+
   return (
     <Box component="form" onSubmit={handleSubmit} noValidate>
       <TextField
@@ -55,8 +66,14 @@ export default function SignInForm() {
         </Typography>
       )}
 
-      <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-        Sign in
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        sx={{ mt: 2 }}
+        disabled={isPending}
+      >
+        {isPending ? <Loader2 className="animate-spin" /> : "Sign in"}
       </Button>
     </Box>
   );

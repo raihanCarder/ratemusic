@@ -1,5 +1,5 @@
-import sampleData from "@/app/feed/sampleData";
-import AlbumView from "@/components/AlbumView";
+import sampleData from "@/src/app/feed/sampleData";
+import AlbumView from "@/src/components/AlbumView";
 import { notFound } from "next/navigation";
 
 export default async function AlbumPage({

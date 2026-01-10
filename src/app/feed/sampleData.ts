@@ -1,4 +1,4 @@
-import type { Album } from "@/types/album";
+import type { Album } from "@/src/lib/types/album";
 
 const sampleData: Album[] = [
   {

@@ -1,5 +1,5 @@
 import sampleData from "./sampleData";
-import AlbumGrid from "@/components/AlbumGrid";
+import AlbumGrid from "@/src/components/AlbumGrid";
 
 export default function AlbumFeed() {
   /* 

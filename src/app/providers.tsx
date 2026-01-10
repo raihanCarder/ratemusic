@@ -2,9 +2,8 @@
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import Nav from "@/components/Nav";
-import PageFooter from "@/components/PageFooter";
-
+import PageFooter from "@/src/components/PageFooter";
+import { Toaster } from "react-hot-toast";
 const theme = createTheme({
   palette: {
     mode: "dark",
@@ -16,8 +15,14 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <AppRouterCacheProvider options={{ key: "mui" }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Nav />
         {children}
+        <Toaster
+          toastOptions={{
+            style: {
+              textAlign: "center",
+            },
+          }}
+        />
         <PageFooter />
       </ThemeProvider>
     </AppRouterCacheProvider>

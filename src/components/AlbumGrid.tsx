@@ -1,6 +1,6 @@
 "use client";
 
-import type { Album } from "@/types/album";
+import type { Album } from "@/src/lib/types/album";
 import Box from "@mui/material/Box";
 import AlbumCard from "./AlbumCard";
 import Link from "next/link";

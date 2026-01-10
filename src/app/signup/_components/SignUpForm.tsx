@@ -2,14 +2,18 @@
 
 import { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
-import signUpUser from "../actions";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { signUpUserAction } from "@/src/actions/users";
+import { useTransition } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function SignUpForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const fd = new FormData(e.currentTarget);
@@ -22,13 +26,20 @@ export default function SignUpForm() {
       return;
     }
 
-    const newUser = await signUpUser({ email, password, username });
+    startTransition(async () => {
+      const { errorMessage } = await signUpUserAction({
+        username,
+        email,
+        password,
+      });
 
-    if (newUser.success) {
-      router.push("/feed");
-    } else {
-      setFormError(newUser.message);
-    }
+      if (errorMessage) {
+        setFormError(errorMessage);
+      } else {
+        router.push("/signin");
+        toast.success("Verification link has been sent to your Email");
+      }
+    });
   };
 
   return (
@@ -48,6 +59,7 @@ export default function SignUpForm() {
         type="email"
         fullWidth
         margin="normal"
+        disabled={isPending}
       />
       <TextField
         name="password"
@@ -55,6 +67,7 @@ export default function SignUpForm() {
         type="password"
         fullWidth
         margin="normal"
+        disabled={isPending}
       />
 
       {formError && (
@@ -63,8 +76,14 @@ export default function SignUpForm() {
         </Typography>
       )}
 
-      <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-        Create account
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        sx={{ mt: 2 }}
+        disabled={isPending}
+      >
+        {isPending ? <Loader2 className="animate-spin" /> : "Create account"}
       </Button>
     </Box>
   );

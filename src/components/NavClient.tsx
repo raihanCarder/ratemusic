@@ -8,14 +8,20 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-
 import NavLink from "./NavLink";
+import SignOutButton from "./SignOutButton";
+import { User } from "@supabase/supabase-js";
 
-export default function Nav() {
+type NavClientProps = {
+  user: User | null;
+};
+
+export default function NavClient({ user }: NavClientProps) {
   /*
     Navigation bar at the top of site. Contains Nav Links, SearchBar, Sign-in Button,
     Logo and title.
   */
+
   return (
     <AppBar
       position="sticky"
@@ -80,19 +86,23 @@ export default function Nav() {
                 "& .MuiOutlinedInput-root": { borderRadius: 999 },
               }}
             />
-            <Button
-              component={Link}
-              href="/signin"
-              variant="outlined"
-              sx={{
-                textTransform: "none",
-                fontWeight: 700,
-                borderRadius: 999,
-                px: 2,
-              }}
-            >
-              Sign in
-            </Button>
+            {user ? (
+              <SignOutButton />
+            ) : (
+              <Button
+                component={Link}
+                href="/signin"
+                variant="outlined"
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 700,
+                  borderRadius: 999,
+                  px: 2,
+                }}
+              >
+                Sign in
+              </Button>
+            )}
           </Box>
         </Box>
       </Toolbar>

@@ -1,6 +1,6 @@
 "use client";
 
-import type { Album } from "@/types/album";
+import type { Album } from "@/src/lib/types/album";
 import Image from "next/image";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";

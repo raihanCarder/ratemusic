@@ -5,6 +5,10 @@ import Link from "next/link";
 import SignUpForm from "./_components/SignUpForm";
 
 export default function SignUpPage() {
+  /*
+   * Sign Up Page used to Sign up for site. Sign-up done in SignUpForm Component.
+   */
+
   return (
     <Box
       sx={{

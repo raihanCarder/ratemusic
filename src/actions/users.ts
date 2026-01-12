@@ -1,5 +1,7 @@
 "use server";
+
 import { createSupabaseServer } from "../auth/server";
+
 type signUpUserActionProp = {
   email: string;
   password: string;
@@ -17,14 +19,40 @@ export async function signUpUserAction({
   password,
 }: signUpUserActionProp) {
   try {
-    const { auth } = await createSupabaseServer();
-    const { error } = await auth.signUp({ email, password });
+    const supabase = await createSupabaseServer();
 
-    if (error) throw error;
+    const { data, error: SignUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username: username.toLowerCase().trim(),
+        },
+      },
+    });
 
-    //TODO: Make it check if account already has username .
-    // If so then make a custom error message as currently even if acct exists
-    // errorMessage will be null
+    if (SignUpError) {
+      const usernameAlreadyExists =
+        SignUpError.message?.includes("duplicate") ||
+        SignUpError.message?.includes("username") ||
+        "Database error saving new user";
+
+      if (usernameAlreadyExists) {
+        return { errorMessage: "That username is already taken." };
+      }
+
+      return {
+        errorMessage: SignUpError.message,
+      };
+    }
+
+    const emailInDatabase = data.user && data.user.identities?.length === 0;
+
+    if (emailInDatabase) {
+      return {
+        errorMessage: "If you already have an account, try signing in.",
+      };
+    }
 
     return { errorMessage: null };
   } catch (err) {
@@ -39,9 +67,12 @@ export async function signInUserAction({
 }: signInUserActionProp) {
   try {
     const { auth } = await createSupabaseServer();
-    const { error } = await auth.signInWithPassword({ email, password });
+    const { error: SignInError } = await auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (error) throw error;
+    if (SignInError) return { errorMessage: SignInError.message };
 
     return { errorMessage: null };
   } catch (err) {
@@ -53,9 +84,9 @@ export async function signInUserAction({
 export async function signOutUserAction() {
   try {
     const { auth } = await createSupabaseServer();
-    const { error } = await auth.signOut();
+    const { error: SignOutError } = await auth.signOut();
 
-    if (error) throw error;
+    if (SignOutError) return { errorMessage: SignOutError.message };
 
     return { errorMessage: null };
   } catch (err) {

@@ -4,8 +4,9 @@ import { Box, Typography, Link as MuiLink } from "@mui/material";
 import Link from "next/link";
 
 export default function SignInPage() {
-  /**
-   * Sign-In Page. Can be routed to Sign-up page or back to Discovery if account exists.
+  /*
+   * Sign-In Page. Can be routed to Sign-up page or back to /feed if account exists.
+   * Sign-In done in /components/SignInForm.tsx
    */
 
   return (

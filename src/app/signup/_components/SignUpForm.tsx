@@ -9,7 +9,13 @@ import { useTransition } from "react";
 import { Loader2 } from "lucide-react";
 
 export default function SignUpForm() {
+  /*
+   * Sign-up component used as a form to create an account.
+   */
+
   const [formError, setFormError] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -23,6 +29,13 @@ export default function SignUpForm() {
 
     if (!email || !password || !username) {
       setFormError("Please fill in all fields.");
+      return;
+    }
+
+    if (!isValidUsername(username)) {
+      setUsernameError(
+        "“Usernames must be 3-20 characters and can contain only lowercase letters, numbers, and underscores.”"
+      );
       return;
     }
 
@@ -49,10 +62,17 @@ export default function SignUpForm() {
       </Typography>
 
       <Typography variant="body2" color="text.secondary" mb={2}>
-        Create your account to get started.
+        Create an account to get started.
       </Typography>
 
       <TextField name="username" label="Username*" fullWidth margin="normal" />
+
+      {usernameError && (
+        <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+          {usernameError}
+        </Typography>
+      )}
+
       <TextField
         name="email"
         label="Email*"
@@ -87,4 +107,9 @@ export default function SignUpForm() {
       </Button>
     </Box>
   );
+}
+
+function isValidUsername(username: string) {
+  const USERNAME_REGEX = /^[a-z][a-z0-9_]{2,19}$/;
+  return USERNAME_REGEX.test(username);
 }

@@ -7,7 +7,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+// import Typography from "@mui/material/Typography";
 import NavLink from "./NavLink";
 import SignOutButton from "./SignOutButton";
 import { User } from "@supabase/supabase-js";
@@ -44,7 +44,16 @@ export default function NavClient({ user }: NavClientProps) {
           }}
         >
           {/* Logo + Name */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.25,
+              position: "relative",
+            }}
+            width={170}
+            height={50}
+          >
             <Link
               href="/feed"
               style={{
@@ -54,12 +63,12 @@ export default function NavClient({ user }: NavClientProps) {
                 textDecoration: "none",
               }}
             >
-              <Image src="/logo.png" alt="Logo" width={26} height={26} />
-              <Typography
+              <Image src="/logo_light.png" alt="Logo" fill />
+              {/* <Typography
                 sx={{ fontSize: 30, fontWeight: 800, letterSpacing: 0.4 }}
               >
                 Music4You
-              </Typography>
+              </Typography> */}
             </Link>
           </Box>
 

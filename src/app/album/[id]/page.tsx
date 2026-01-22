@@ -1,4 +1,4 @@
-import sampleData from "@/src/app/feed/sampleData";
+import sampleData from "@/src/lib/music/testing/sampleData";
 import AlbumView from "@/src/components/AlbumView";
 import { notFound } from "next/navigation";
 

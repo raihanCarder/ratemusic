@@ -1,5 +1,7 @@
 import type { Album } from "@/src/lib/types/album";
 
+// old Sample data.
+
 const sampleData: Album[] = [
   {
     id: "blonde",

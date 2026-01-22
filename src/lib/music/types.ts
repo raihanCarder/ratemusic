@@ -32,10 +32,11 @@ export type AlbumDataInDatabase = {
 export interface AlbumDatabase {
   findAlbumByProviderId(
     provider: string,
-    providerAlbumId: string
+    providerAlbumId: string,
   ): Promise<AlbumData | null>;
   upsertAlbumFromProvider(album: AlbumData): Promise<AlbumData | null>;
-  getFeaturedAlbums(amount: number): Promise<AlbumData[]>;
+  getFeaturedAlbums(amount: number, listName: string): Promise<AlbumData[]>;
+  setFeaturedAlbums(albums: AlbumData[]): Promise<AlbumData[]>;
 }
 
 // Music API

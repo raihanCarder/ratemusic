@@ -2,21 +2,29 @@ import { AlbumData, AlbumDatabase, AlbumDataInDatabase } from "./types";
 import { createSupabaseAdmin } from "@/src/auth/admin";
 import { createSupabaseServer } from "@/src/auth/server";
 import {
-  getAlbumDataFromProviderId,
-  upsertAlbumToDatabase,
+  getAlbumDataFromProviderIdQuery,
+  upsertAlbumToDatabaseQuery,
+  getFeaturedAlbumsQuery,
+  getListIdQuery,
 } from "./supabaseQueries";
+
+type FeaturedListItemRow = {
+  rank: number;
+  album: AlbumDataInDatabase[];
+};
 
 export class Supabase implements AlbumDatabase {
   async findAlbumByProviderId(
     provider: string,
-    providerAlbumId: string
+    providerAlbumId: string,
   ): Promise<AlbumData | null> {
     const db = await createSupabaseServer();
-    const { data, error: databaseError } = await getAlbumDataFromProviderId({
-      db,
-      provider,
-      providerAlbumId,
-    });
+    const { data, error: databaseError } =
+      await getAlbumDataFromProviderIdQuery({
+        db,
+        provider,
+        providerAlbumId,
+      });
 
     if (databaseError || !data) {
       return null;
@@ -32,7 +40,7 @@ export class Supabase implements AlbumDatabase {
 
     const row = mapAlbumDataToDatabaseRow(album);
 
-    const { data, error: upsertError } = await upsertAlbumToDatabase({
+    const { data, error: upsertError } = await upsertAlbumToDatabaseQuery({
       db,
       row,
     });
@@ -44,7 +52,33 @@ export class Supabase implements AlbumDatabase {
     return newAlbum;
   }
 
-  async getFeaturedAlbums(amount: number): Promise<AlbumData[]> {
+  async getFeaturedAlbums(
+    amount: number,
+    listName: string,
+  ): Promise<AlbumData[]> {
+    const db = await createSupabaseAdmin();
+
+    const { data: list, error: getListError } = await getListIdQuery({
+      db,
+      listName,
+    });
+
+    if (getListError || !list) return [];
+
+    const { data: tempData, error: getAlbumsError } =
+      await getFeaturedAlbumsQuery({ db, listId: list.id, amount });
+
+    if (getAlbumsError || !tempData) return [];
+
+    const data = tempData as FeaturedListItemRow[];
+
+    return data
+      .map((row) => row.album?.[0])
+      .filter((a): a is AlbumDataInDatabase => Boolean(a))
+      .map((a) => mapDatabaseRowToAlbumData(a));
+  }
+
+  async setFeaturedAlbums(albums: AlbumData[]): Promise<AlbumData[]> {
     return [];
   }
 }

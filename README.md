@@ -1,6 +1,6 @@
 # Music4You 🎵
 
-A Letterboxd-style music app where users discover albums, open album detail pages, and manage accounts. Built as a full-stack Next.js project with a clean provider/database architecture designed for real API integrations (Spotify) and persistent storage (Supabase).
+Music4You is a Letterboxd-style music app where users discover albums, add friends, and manage accounts. Personally, I’ve met many of my close friends through shared music interests, and I wanted to build something that could help others form meaningful connections. The goal is to create a space where people can rate music, discover shared tastes, and connect with friends through their listening preferences. Built as a full-stack Next.js project with a clean provider/database architecture designed for real API integrations (Spotify) and persistent storage (Supabase).
 
 ## Why This Project 🚀
 

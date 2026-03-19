@@ -7,10 +7,10 @@ export class MockProvider implements MusicProvider {
     return [];
   }
 
-  async getAlbum(providerAlbumId: string): Promise<AlbumData | null> {
+  async getAlbum(id: string): Promise<AlbumData | null> {
     const data = MockData;
 
-    const found = data.find((item) => item.providerAlbumId === providerAlbumId);
+    const found = data.find((item) => item.id === id);
 
     return found ?? null;
   }

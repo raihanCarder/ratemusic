@@ -1,6 +1,6 @@
 "use client";
 
-import type { Album } from "@/src/lib/types/album";
+import type { AlbumData } from "@/src/lib/music/types";
 import Image from "next/image";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -10,7 +10,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import SongView from "./SongView";
 
-export default function AlbumView({ album }: { album: Album }) {
+export default function AlbumView({ album }: { album: AlbumData }) {
   /*
     AlbumView is Shown when you want a view of an album and all it's information.
   */

@@ -1,22 +1,28 @@
 // data shown from search
 export type AlbumPreview = {
   provider: string;
-  providerAlbumId: string;
+  id: string;
   title: string;
-  albumCover: string;
+  image: string;
   artist: string;
   releaseDate?: string | null;
 };
 
-// all album data
+// Song data for tracks
+export type Song = {
+  id: string;
+  title: string;
+  trackNumber?: number;
+  durationMs?: number;
+};
 
+// all album data (unified for UI and music service)
 export type AlbumData = AlbumPreview & {
-  tracks?: { name: string; trackNumber?: number; durationMs?: number }[];
+  songs?: Song[];
   raw?: unknown | null;
 };
 
 // What AlbumData looks like in Database
-
 export type AlbumDataInDatabase = {
   provider: string;
   provider_album_id: string;
@@ -28,11 +34,10 @@ export type AlbumDataInDatabase = {
 };
 
 // database with albums
-
 export interface AlbumDatabase {
   findAlbumByProviderId(
     provider: string,
-    providerAlbumId: string,
+    id: string,
   ): Promise<AlbumData | null>;
   upsertAlbumFromProvider(album: AlbumData): Promise<AlbumData | null>;
   getFeaturedAlbums(amount: number, listName: string): Promise<AlbumData[]>;
@@ -43,6 +48,6 @@ export interface AlbumDatabase {
 export interface MusicProvider {
   name: string;
   searchAlbums(query: string, limit?: number): Promise<AlbumPreview[]>;
-  getAlbum(providerAlbumId: string): Promise<AlbumData | null>;
+  getAlbum(id: string): Promise<AlbumData | null>;
   getFeaturedAlbums(amount: number): Promise<AlbumData[]>;
 }

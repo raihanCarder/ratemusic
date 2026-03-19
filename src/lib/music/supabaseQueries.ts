@@ -4,13 +4,13 @@ import { AlbumDataInDatabase } from "./types";
 type getAlbumDataFromProviderIdQueryParams = {
   db: SupabaseClient;
   provider: string;
-  providerAlbumId: string;
+  id: string;
 };
 
 export async function getAlbumDataFromProviderIdQuery({
   db,
   provider,
-  providerAlbumId,
+  id,
 }: getAlbumDataFromProviderIdQueryParams) {
   return db
     .from("albums")
@@ -18,7 +18,7 @@ export async function getAlbumDataFromProviderIdQuery({
       "provider, provider_album_id, title, artist, album_cover, release_date, raw_payload",
     )
     .eq("provider", provider)
-    .eq("provider_album_id", providerAlbumId)
+    .eq("provider_album_id", id)
     .maybeSingle();
 }
 
@@ -35,7 +35,7 @@ export async function upsertAlbumToDatabaseQuery({
     .from("albums")
     .upsert(row, { onConflict: "provider, provider_album_id" })
     .select(
-      "provider, provider_album_id, title, artist, album_cover, release_date, raw_payload",
+      "id, provider, provider_album_id, title, artist, album_cover, release_date, raw_payload",
     )
     .maybeSingle();
 }
@@ -83,4 +83,51 @@ export async function getListIdQuery({ db, listName }: getListIdQueryParams) {
     .select("id")
     .eq("slug", listName)
     .maybeSingle();
+}
+
+type createOrGetFeaturedListParams = {
+  db: SupabaseClient;
+  slug: string;
+  title: string;
+};
+
+export async function createOrGetFeaturedListQuery({
+  db,
+  slug,
+  title,
+}: createOrGetFeaturedListParams) {
+  // Try to get existing
+  const { data: existing, error: getError } = await db
+    .from("featured_lists")
+    .select("id")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  // If found, return it
+  if (existing) {
+    console.log(`Found existing featured list: ${slug}`, existing);
+    return { data: existing, error: null };
+  }
+
+  // If error occurred during GET, return the error
+  if (getError) {
+    console.error(`Error fetching featured list ${slug}:`, getError);
+    return { data: null, error: getError };
+  }
+
+  // Not found (data is null, error is null) - create it
+  console.log(`Creating new featured list: ${slug}`);
+  const createResult = await db
+    .from("featured_lists")
+    .insert([{ slug, title }])
+    .select("id")
+    .maybeSingle();
+
+  if (createResult.error) {
+    console.error(`Error creating featured list ${slug}:`, createResult.error);
+  } else {
+    console.log(`Successfully created featured list:`, createResult.data);
+  }
+
+  return createResult;
 }

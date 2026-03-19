@@ -1,10 +1,11 @@
 "use client";
 
-import type { Album } from "@/src/lib/types/album";
+import type { AlbumData } from "@/src/lib/music/types";
 import Box from "@mui/material/Box";
 import AlbumCard from "./AlbumCard";
 import Link from "next/link";
-type AlbumGridProps = { albums: Album[] };
+
+type AlbumGridProps = { albums: AlbumData[] };
 
 export default function AlbumGrid({ albums }: AlbumGridProps) {
   /*

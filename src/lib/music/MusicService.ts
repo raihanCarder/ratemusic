@@ -12,17 +12,17 @@ export class MusicService {
     return this.provider.searchAlbums(query, limit);
   }
 
-  async getAlbum(providerAlbumId: string): Promise<AlbumData | null> {
+  async getAlbum(id: string): Promise<AlbumData | null> {
     const cachedAlbum = await this.db.findAlbumByProviderId(
       this.provider.name,
-      providerAlbumId,
+      id,
     );
 
     if (cachedAlbum) {
       return cachedAlbum;
     }
 
-    const newAlbum = await this.provider.getAlbum(providerAlbumId);
+    const newAlbum = await this.provider.getAlbum(id);
 
     if (!newAlbum) return null;
 

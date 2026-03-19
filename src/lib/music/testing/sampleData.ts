@@ -1,8 +1,11 @@
-import type { Album } from "@/src/lib/types/album";
-
-// old Sample data.
-
-const sampleData: Album[] = [
+// old Sample data - base structure (gets converted to AlbumData with provider in mockAlbumData.ts)
+const sampleData: Array<{
+  id: string;
+  title: string;
+  artist: string;
+  image: string;
+  songs?: Array<{ id: string; title: string; durationMs?: number }>;
+}> = [
   {
     id: "blonde",
     title: "Blonde",

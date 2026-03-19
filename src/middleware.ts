@@ -16,7 +16,7 @@ async function getUser(request: NextRequest, response: NextResponse) {
           });
         },
       },
-    }
+    },
   );
 
   const {
@@ -28,20 +28,28 @@ async function getUser(request: NextRequest, response: NextResponse) {
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request: { headers: request.headers } });
-  const user = await getUser(request, response);
 
-  const { pathname } = request.nextUrl;
+  try {
+    const user = await getUser(request, response);
+    const { pathname } = request.nextUrl;
 
-  const isAuthPage =
-    pathname === "/signin" ||
-    pathname === "/signup" ||
-    pathname.startsWith("/signin/") ||
-    pathname.startsWith("/signup/");
+    const isAuthPage =
+      pathname === "/signin" ||
+      pathname === "/signup" ||
+      pathname.startsWith("/signin/") ||
+      pathname.startsWith("/signup/");
 
-  if (user && isAuthPage) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/feed";
-    return NextResponse.redirect(url);
+    if (user && isAuthPage) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/feed";
+      return NextResponse.redirect(url);
+    }
+  } catch (error) {
+    // Auth errors are expected when not logged in - just continue
+    console.debug(
+      "Middleware auth check:",
+      error instanceof Error ? error.message : String(error),
+    );
   }
 
   return response;

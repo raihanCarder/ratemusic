@@ -1,11 +1,11 @@
 "use client";
 
-import { Album } from "@/src/lib/types/album";
+import { AlbumData } from "@/src/lib/music/types";
 import ImageListItemBar from "@mui/material/ImageListItemBar";
 import Box from "@mui/material/Box";
 import Image from "next/image";
 
-type AlbumCardProps = { album: Album };
+type AlbumCardProps = { album: AlbumData };
 
 export default function AlbumCard({ album }: AlbumCardProps) {
   /*

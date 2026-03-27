@@ -4,10 +4,11 @@ import { createSupabaseServer } from "@/src/auth/server";
 import {
   getAlbumDataFromProviderIdQuery,
   upsertAlbumToDatabaseQuery,
+  upsertAlbumsToDatabaseQuery,
   getFeaturedAlbumsQuery,
-  getListIdQuery,
   createOrGetFeaturedListQuery,
 } from "./supabaseQueries";
+import { FEED_ALBUMS_AMOUNT } from "./constants";
 
 type FeaturedListItemRow = {
   rank: number;
@@ -72,18 +73,8 @@ export class Supabase implements AlbumDatabase {
     try {
       const db = await createSupabaseAdmin();
 
-      const { data: list, error: getListError } = await getListIdQuery({
-        db,
-        listName,
-      });
-
-      if (getListError || !list) {
-        console.error("Error fetching list:", getListError);
-        return [];
-      }
-
       const { data: tempData, error: getAlbumsError } =
-        await getFeaturedAlbumsQuery({ db, listId: list.id, amount });
+        await getFeaturedAlbumsQuery({ db, listSlug: listName, amount });
 
       if (getAlbumsError || !tempData) {
         console.error("Error fetching albums:", getAlbumsError);
@@ -107,24 +98,32 @@ export class Supabase implements AlbumDatabase {
       const db = await createSupabaseAdmin();
       console.log(`[setFeaturedAlbums] Starting with ${albums.length} albums`);
 
-      // Upsert all albums and collect their IDs
-      const upsertedAlbumsWithIds: Array<AlbumDataInDatabase & { id: string }> =
-        [];
-      for (const album of albums) {
-        const row = mapAlbumDataToDatabaseRow(album);
-        const { data, error } = await upsertAlbumToDatabaseQuery({
-          db,
-          row,
-        });
+      const rows = albums.map((album) => mapAlbumDataToDatabaseRow(album));
+      const {
+        data: upsertedAlbums,
+        error: bulkUpsertError,
+      } = await upsertAlbumsToDatabaseQuery({
+        db,
+        rows,
+      });
 
-        if (!error && data && "id" in data) {
-          upsertedAlbumsWithIds.push(
-            data as AlbumDataInDatabase & { id: string },
-          );
-        } else if (error) {
-          console.error("Error upserting album:", error);
-        }
+      if (bulkUpsertError || !upsertedAlbums) {
+        console.error("Error upserting featured albums:", bulkUpsertError);
+        return [];
       }
+
+      const albumByKey = new Map(
+        upsertedAlbums.map((album) => [
+          `${album.provider}:${album.provider_album_id}`,
+          album as AlbumDataInDatabase & { id: string },
+        ]),
+      );
+      const upsertedAlbumsWithIds = rows
+        .map((row) => albumByKey.get(`${row.provider}:${row.provider_album_id}`))
+        .filter((album): album is AlbumDataInDatabase & { id: string } =>
+          Boolean(album),
+        );
+
       console.log(
         `[setFeaturedAlbums] Upserted ${upsertedAlbumsWithIds.length} albums`,
       );
@@ -173,7 +172,7 @@ export class Supabase implements AlbumDatabase {
           album_id: album.id,
           rank: index + 1,
         }))
-        .slice(0, 25);
+        .slice(0, FEED_ALBUMS_AMOUNT);
 
       console.log(
         `[setFeaturedAlbums] Inserting ${listItems.length} featured list items`,
@@ -181,7 +180,7 @@ export class Supabase implements AlbumDatabase {
 
       const { error: insertError } = await db
         .from("featured_list_items")
-        .insert(listItems);
+        .upsert(listItems, { onConflict: "list_id, album_id" });
 
       if (insertError) {
         console.error(

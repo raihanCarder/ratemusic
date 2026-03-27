@@ -5,17 +5,14 @@ import Image from "next/image";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import type { AccountNavUser } from "@/src/lib/profiles/types";
-import AccountMenu from "./AccountMenu";
 import NavLink from "./NavLink";
 
 type NavClientProps = {
-  account: AccountNavUser | null;
+  children?: React.ReactNode;
 };
 
-export default function NavClient({ account }: NavClientProps) {
+export default function NavClient({ children }: NavClientProps) {
   /*
     Navigation bar at the top of site. Contains Nav Links, SearchBar, Sign-in Button,
     Logo and title.
@@ -116,23 +113,7 @@ export default function NavClient({ account }: NavClientProps) {
                 "& .MuiOutlinedInput-root": { borderRadius: 999 },
               }}
             />
-            {account ? (
-              <AccountMenu account={account} />
-            ) : (
-              <Button
-                component={Link}
-                href="/signin"
-                variant="outlined"
-                sx={{
-                  textTransform: "none",
-                  fontWeight: 700,
-                  borderRadius: 999,
-                  px: 2,
-                }}
-              >
-                Sign in
-              </Button>
-            )}
+            {children}
           </Box>
         </Box>
       </Toolbar>

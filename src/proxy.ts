@@ -1,7 +1,7 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-async function getUser(request: NextRequest, response: NextResponse) {
+async function getProxyUser(request: NextRequest, response: NextResponse) {
   const supabaseClient = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
@@ -26,36 +26,28 @@ async function getUser(request: NextRequest, response: NextResponse) {
   return user;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const response = NextResponse.next({ request: { headers: request.headers } });
 
   try {
-    const user = await getUser(request, response);
-    const { pathname } = request.nextUrl;
+    const user = await getProxyUser(request, response);
 
-    const isAuthPage =
-      pathname === "/signin" ||
-      pathname === "/signup" ||
-      pathname.startsWith("/signin/") ||
-      pathname.startsWith("/signup/");
-
-    if (user && isAuthPage) {
+    if (user) {
       const url = request.nextUrl.clone();
       url.pathname = "/feed";
       return NextResponse.redirect(url);
     }
   } catch (error) {
-    // Auth errors are expected when not logged in - just continue
     console.debug(
-      "Middleware auth check:",
+      "Auth proxy check:",
       error instanceof Error ? error.message : String(error),
     );
   }
 
   return response;
 }
+
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/signin/:path*", "/signup/:path*"],
 };
+

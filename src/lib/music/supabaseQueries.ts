@@ -40,15 +40,32 @@ export async function upsertAlbumToDatabaseQuery({
     .maybeSingle();
 }
 
+type upsertAlbumsToDatabaseQueryParams = {
+  db: SupabaseClient;
+  rows: AlbumDataInDatabase[];
+};
+
+export async function upsertAlbumsToDatabaseQuery({
+  db,
+  rows,
+}: upsertAlbumsToDatabaseQueryParams) {
+  return db
+    .from("albums")
+    .upsert(rows, { onConflict: "provider, provider_album_id" })
+    .select(
+      "id, provider, provider_album_id, title, artist, album_cover, release_date, raw_payload",
+    );
+}
+
 type getFeaturedAlbumsQueryParams = {
   db: SupabaseClient;
-  listId: string;
+  listSlug: string;
   amount: number;
 };
 
 export async function getFeaturedAlbumsQuery({
   db,
-  listId,
+  listSlug,
   amount,
 }: getFeaturedAlbumsQueryParams) {
   return db
@@ -56,6 +73,7 @@ export async function getFeaturedAlbumsQuery({
     .select(
       `
         rank,
+        featured_lists!inner(slug),
         album:albums!featured_list_items_album_id_fkey(
           provider,
           provider_album_id,
@@ -67,22 +85,9 @@ export async function getFeaturedAlbumsQuery({
         )
       `,
     )
-    .eq("list_id", listId)
+    .eq("featured_lists.slug", listSlug)
     .order("rank", { ascending: true })
     .limit(amount);
-}
-
-type getListIdQueryParams = {
-  db: SupabaseClient;
-  listName: string;
-};
-
-export async function getListIdQuery({ db, listName }: getListIdQueryParams) {
-  return db
-    .from("featured_lists")
-    .select("id")
-    .eq("slug", listName)
-    .maybeSingle();
 }
 
 type createOrGetFeaturedListParams = {
@@ -96,38 +101,17 @@ export async function createOrGetFeaturedListQuery({
   slug,
   title,
 }: createOrGetFeaturedListParams) {
-  // Try to get existing
-  const { data: existing, error: getError } = await db
+  const result = await db
     .from("featured_lists")
+    .upsert([{ slug, title }], { onConflict: "slug" })
     .select("id")
-    .eq("slug", slug)
-    .maybeSingle();
+    .single();
 
-  // If found, return it
-  if (existing) {
-    console.log(`Found existing featured list: ${slug}`, existing);
-    return { data: existing, error: null };
-  }
-
-  // If error occurred during GET, return the error
-  if (getError) {
-    console.error(`Error fetching featured list ${slug}:`, getError);
-    return { data: null, error: getError };
-  }
-
-  // Not found (data is null, error is null) - create it
-  console.log(`Creating new featured list: ${slug}`);
-  const createResult = await db
-    .from("featured_lists")
-    .insert([{ slug, title }])
-    .select("id")
-    .maybeSingle();
-
-  if (createResult.error) {
-    console.error(`Error creating featured list ${slug}:`, createResult.error);
+  if (result.error) {
+    console.error(`Error upserting featured list ${slug}:`, result.error);
   } else {
-    console.log(`Successfully created featured list:`, createResult.data);
+    console.log(`Using featured list ${slug}:`, result.data);
   }
 
-  return createResult;
+  return result;
 }

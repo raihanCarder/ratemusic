@@ -1,0 +1,53 @@
+import { unstable_cache } from "next/cache";
+import getMusicService from "./Music";
+import MockData from "./testing/mockAlbumData";
+import {
+  DISCOVERY_FEED_CACHE_TAG,
+  DISCOVERY_FEED_REVALIDATE_SECONDS,
+  FEED_ALBUMS_AMOUNT,
+} from "./constants";
+
+const getCachedDiscoveryAlbums = unstable_cache(
+  async (amount: number) => {
+    const musicService = getMusicService();
+    const albums = await musicService.getCachedFeedAlbums(amount);
+
+    if (albums.length < amount) {
+      throw new Error("DISCOVERY_FEED_INCOMPLETE");
+    }
+
+    return albums;
+  },
+  ["discovery-feed"],
+  {
+    revalidate: DISCOVERY_FEED_REVALIDATE_SECONDS,
+    tags: [DISCOVERY_FEED_CACHE_TAG],
+  },
+);
+
+export async function getDiscoveryAlbums(amount = FEED_ALBUMS_AMOUNT) {
+  try {
+    return await getCachedDiscoveryAlbums(amount);
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message !== "DISCOVERY_FEED_INCOMPLETE"
+    ) {
+      console.error("Error reading cached discovery feed:", error);
+    }
+  }
+
+  try {
+    const musicService = getMusicService();
+    const refreshedAlbums = await musicService.refreshFeedAlbums(amount);
+
+    if (refreshedAlbums.length > 0) {
+      return refreshedAlbums.slice(0, amount);
+    }
+  } catch (error) {
+    console.error("Error refreshing discovery feed:", error);
+  }
+
+  return MockData.slice(0, amount);
+}
+

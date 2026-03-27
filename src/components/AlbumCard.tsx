@@ -1,5 +1,3 @@
-"use client";
-
 import { AlbumData } from "@/src/lib/music/types";
 import ImageListItemBar from "@mui/material/ImageListItemBar";
 import Box from "@mui/material/Box";

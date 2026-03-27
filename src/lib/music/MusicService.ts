@@ -1,6 +1,5 @@
 import { AlbumDatabase, MusicProvider, AlbumPreview, AlbumData } from "./types";
-
-const FEED_ALBUMS_AMOUNT = 25;
+import { FEED_ALBUMS_AMOUNT } from "./constants";
 
 export class MusicService {
   constructor(
@@ -29,20 +28,25 @@ export class MusicService {
     return this.db.upsertAlbumFromProvider(newAlbum);
   }
 
+  async getCachedFeedAlbums(amount = FEED_ALBUMS_AMOUNT): Promise<AlbumData[]> {
+    return this.db.getFeaturedAlbums(amount, "feed");
+  }
+
+  async refreshFeedAlbums(amount = FEED_ALBUMS_AMOUNT): Promise<AlbumData[]> {
+    const initializedAlbumsForFeed = await this.provider.getFeaturedAlbums(
+      amount,
+    );
+
+    return this.db.setFeaturedAlbums(initializedAlbumsForFeed);
+  }
+
   async getFeedAlbums(amount = FEED_ALBUMS_AMOUNT): Promise<AlbumData[]> {
-    const cachedFeedAlbums = await this.db.getFeaturedAlbums(amount, "feed");
+    const cachedFeedAlbums = await this.getCachedFeedAlbums(amount);
 
     if (cachedFeedAlbums.length >= amount) {
       return cachedFeedAlbums.slice(0, amount);
     }
 
-    // initialize albums once
-
-    const initalizedAlbumsForFeed =
-      await this.provider.getFeaturedAlbums(amount);
-
-    const feedAlbums = await this.db.setFeaturedAlbums(initalizedAlbumsForFeed);
-
-    return feedAlbums;
+    return this.refreshFeedAlbums(amount);
   }
 }

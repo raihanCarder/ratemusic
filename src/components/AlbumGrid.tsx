@@ -1,5 +1,3 @@
-"use client";
-
 import type { AlbumData } from "@/src/lib/music/types";
 import Box from "@mui/material/Box";
 import AlbumCard from "./AlbumCard";
@@ -29,7 +27,7 @@ export default function AlbumGrid({ albums }: AlbumGridProps) {
           }}
         >
           {albums.map((album) => (
-            <Link key={album.id} href={`/album/${album.id}`}>
+            <Link key={album.id} href={`/album/${album.id}`} prefetch={false}>
               <AlbumCard album={album} />
             </Link>
           ))}

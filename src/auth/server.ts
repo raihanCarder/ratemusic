@@ -1,6 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+function isSupabaseSessionCookie(name: string) {
+  return name.startsWith("sb-") && name.includes("auth-token");
+}
+
+export async function hasSupabaseSessionCookie() {
+  const cookieStore = await cookies();
+  return cookieStore.getAll().some(({ name }) => isSupabaseSessionCookie(name));
+}
+
 export async function createSupabaseServer() {
   const cookieStore = await cookies();
   return createServerClient(
@@ -32,6 +41,10 @@ function isMissingSessionError(message: string) {
 }
 
 export async function getUser() {
+  if (!(await hasSupabaseSessionCookie())) {
+    return null;
+  }
+
   const supabase = await createSupabaseServer();
 
   const {

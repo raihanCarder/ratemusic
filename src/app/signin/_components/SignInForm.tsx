@@ -20,6 +20,8 @@ export default function SignInForm() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
+    setFormError(null);
+
     if (!email || !password) {
       setFormError("Please fill in all fields.");
       return;
@@ -35,6 +37,7 @@ export default function SignInForm() {
         setFormError(errorMessage);
       } else {
         router.push("/feed");
+        router.refresh();
         toast.success("User signed in!");
       }
     });
@@ -49,6 +52,7 @@ export default function SignInForm() {
         fullWidth
         margin="normal"
         required
+        disabled={isPending}
       />
 
       <TextField
@@ -58,6 +62,7 @@ export default function SignInForm() {
         fullWidth
         margin="normal"
         required
+        disabled={isPending}
       />
 
       {formError && (
@@ -70,7 +75,7 @@ export default function SignInForm() {
         type="submit"
         variant="contained"
         fullWidth
-        sx={{ mt: 2 }}
+        sx={{ mt: 2, borderRadius: 999, py: 1.2 }}
         disabled={isPending}
       >
         {isPending ? <Loader2 className="animate-spin" /> : "Sign in"}

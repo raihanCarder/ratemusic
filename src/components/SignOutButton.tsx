@@ -5,10 +5,15 @@ import { useTransition } from "react";
 import toast from "react-hot-toast";
 import Button from "@mui/material/Button";
 import { signOutUserAction } from "../actions/users";
-import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
-export default function SignOutButton() {
+type SignOutButtonProps = {
+  fullWidth?: boolean;
+};
+
+export default function SignOutButton({
+  fullWidth = false,
+}: SignOutButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -17,18 +22,17 @@ export default function SignOutButton() {
       const { errorMessage } = await signOutUserAction();
 
       if (errorMessage) {
-        toast.success("Failed to signout");
+        toast.error("Failed to sign out.");
       } else {
         router.push("/feed");
-        toast.success("Signed out");
+        router.refresh();
+        toast.success("Signed out.");
       }
     });
   };
 
   return (
     <Button
-      component={Link}
-      href="/feed"
       variant="outlined"
       sx={{
         textTransform: "none",
@@ -39,6 +43,7 @@ export default function SignOutButton() {
       onClick={handleSubmit}
       color="error"
       disabled={isPending}
+      fullWidth={fullWidth}
     >
       {isPending ? <Loader2 className="animate-spin" /> : "Sign out"}
     </Button>

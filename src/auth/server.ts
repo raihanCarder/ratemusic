@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+
 export async function createSupabaseServer() {
   const cookieStore = await cookies();
   return createServerClient(
@@ -22,6 +23,14 @@ export async function createSupabaseServer() {
   );
 }
 
+function isMissingSessionError(message: string) {
+  const normalizedMessage = message.toLowerCase();
+  return (
+    normalizedMessage.includes("auth session missing") ||
+    normalizedMessage.includes("session missing")
+  );
+}
+
 export async function getUser() {
   const supabase = await createSupabaseServer();
 
@@ -31,7 +40,9 @@ export async function getUser() {
   } = await supabase.auth.getUser();
 
   if (error) {
-    console.log("User not logged in:", error.message);
+    if (!isMissingSessionError(error.message)) {
+      console.error("Error fetching current user:", error.message);
+    }
     return null;
   }
 

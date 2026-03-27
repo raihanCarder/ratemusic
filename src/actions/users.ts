@@ -1,6 +1,9 @@
 "use server";
 
+import { createSupabaseAdmin } from "../auth/admin";
 import { createSupabaseServer } from "../auth/server";
+import { ensureProfileForUser } from "../lib/profiles/server";
+import { isValidUsername, normalizeUsername } from "../lib/profiles/validation";
 
 type signUpUserActionProp = {
   email: string;
@@ -19,6 +22,30 @@ export async function signUpUserAction({
   password,
 }: signUpUserActionProp) {
   try {
+    const normalizedUsername = normalizeUsername(username);
+
+    if (!isValidUsername(normalizedUsername)) {
+      return {
+        errorMessage:
+          "Usernames must be 3-20 characters and can contain only lowercase letters, numbers, and underscores.",
+      };
+    }
+
+    const admin = createSupabaseAdmin();
+    const { data: existingProfile, error: existingProfileError } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("username", normalizedUsername)
+      .maybeSingle();
+
+    if (existingProfileError) {
+      return { errorMessage: "Could not create your account right now." };
+    }
+
+    if (existingProfile) {
+      return { errorMessage: "That username is already taken." };
+    }
+
     const supabase = await createSupabaseServer();
 
     const { data, error: SignUpError } = await supabase.auth.signUp({
@@ -26,7 +53,7 @@ export async function signUpUserAction({
       password,
       options: {
         data: {
-          username: username.toLowerCase().trim(),
+          username: normalizedUsername,
         },
       },
     });
@@ -52,6 +79,12 @@ export async function signUpUserAction({
       return {
         errorMessage: "If you already have an account, try signing in.",
       };
+    }
+
+    if (data.user) {
+      await ensureProfileForUser(data.user, {
+        preferredUsername: normalizedUsername,
+      });
     }
 
     return { errorMessage: null };

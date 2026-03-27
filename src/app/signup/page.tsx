@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Typography, Link as MuiLink } from "@mui/material";
+import { Box, Paper, Typography, Link as MuiLink } from "@mui/material";
 import Link from "next/link";
 import SignUpForm from "./_components/SignUpForm";
 
@@ -12,23 +12,34 @@ export default function SignUpPage() {
   return (
     <Box
       sx={{
-        maxWidth: 400,
-        mx: "auto",
-        mt: 8,
-        p: 3,
-        border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 2,
+        minHeight: "calc(100vh - 180px)",
+        display: "grid",
+        placeItems: "center",
+        px: 2,
+        py: 5,
       }}
     >
-      <SignUpForm />
+      <Paper
+        sx={{
+          width: "100%",
+          maxWidth: 500,
+          p: { xs: 3, md: 4 },
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 4,
+          backgroundImage:
+            "linear-gradient(180deg, rgba(139, 224, 164, 0.1), rgba(18, 18, 18, 0.98))",
+        }}
+      >
+        <SignUpForm />
 
-      <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-        Already have an account?{" "}
-        <MuiLink component={Link} href="/signin">
-          Sign in
-        </MuiLink>
-      </Typography>
+        <Typography variant="body2" align="center" sx={{ mt: 2.5 }}>
+          Already have an account?{" "}
+          <MuiLink component={Link} href="/signin" underline="hover">
+            Sign in
+          </MuiLink>
+        </Typography>
+      </Paper>
     </Box>
   );
 }

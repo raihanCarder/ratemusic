@@ -1,12 +1,12 @@
-import { getUser } from "../auth/server";
+import { getCurrentAccountNavUser } from "../lib/profiles/server";
 import NavClient from "./NavClient";
 
 export default async function Nav() {
   /*
-    Server side Nav so that I can user getUser and get user on server instead of on Client.
+    Server side Nav so that account state can be loaded without client-side auth calls.
   */
 
-  const user = await getUser();
+  const account = await getCurrentAccountNavUser();
 
-  return <NavClient user={user} />;
+  return <NavClient account={account} />;
 }

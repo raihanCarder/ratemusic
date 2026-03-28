@@ -16,6 +16,18 @@ export type Song = {
   durationMs?: number;
 };
 
+export type DailyAlbumEntry = {
+  dateKey: string;
+  createdAt: string;
+  rank: number;
+  album: AlbumData;
+};
+
+export type DailyAlbumPageData = {
+  today: DailyAlbumEntry;
+  history: DailyAlbumEntry[];
+};
+
 // all album data (unified for UI and music service)
 export type AlbumData = AlbumPreview & {
   songs?: Song[];
@@ -40,8 +52,13 @@ export interface AlbumDatabase {
     id: string,
   ): Promise<AlbumData | null>;
   upsertAlbumFromProvider(album: AlbumData): Promise<AlbumData | null>;
+  upsertAlbumsFromProvider(albums: AlbumData[]): Promise<AlbumData[]>;
   getFeaturedAlbums(amount: number, listName: string): Promise<AlbumData[]>;
   setFeaturedAlbums(albums: AlbumData[]): Promise<AlbumData[]>;
+  getDailyAlbum(dateKey: string): Promise<DailyAlbumEntry | null>;
+  getDailyAlbumHistory(limit: number): Promise<DailyAlbumEntry[]>;
+  createDailyAlbum(dateKey: string, album: AlbumData): Promise<DailyAlbumEntry | null>;
+  getDailyAlbumCandidates(): Promise<AlbumData[]>;
 }
 
 // Music API

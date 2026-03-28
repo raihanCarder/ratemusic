@@ -1,5 +1,16 @@
-import { AlbumDatabase, MusicProvider, AlbumPreview, AlbumData } from "./types";
-import { FEED_ALBUMS_AMOUNT } from "./constants";
+import {
+  AlbumDatabase,
+  MusicProvider,
+  AlbumPreview,
+  AlbumData,
+  DailyAlbumPageData,
+} from "./types";
+import {
+  DAILY_ALBUM_HISTORY_LIMIT,
+  DAILY_ALBUM_PROVIDER_POOL_SIZE,
+  FEED_ALBUMS_AMOUNT,
+} from "./constants";
+import { getCurrentDailyAlbumDateKey, getDailyAlbumRank } from "./dailyAlbum";
 
 export class MusicService {
   constructor(
@@ -17,15 +28,17 @@ export class MusicService {
       id,
     );
 
-    if (cachedAlbum) {
+    if (cachedAlbum && (cachedAlbum.songs?.length ?? 0) > 0) {
       return cachedAlbum;
     }
 
-    const newAlbum = await this.provider.getAlbum(id);
+    const providerAlbum = await this.provider.getAlbum(id);
 
-    if (!newAlbum) return null;
+    if (!providerAlbum) {
+      return cachedAlbum;
+    }
 
-    return this.db.upsertAlbumFromProvider(newAlbum);
+    return (await this.db.upsertAlbumFromProvider(providerAlbum)) ?? providerAlbum;
   }
 
   async getCachedFeedAlbums(amount = FEED_ALBUMS_AMOUNT): Promise<AlbumData[]> {
@@ -49,4 +62,89 @@ export class MusicService {
 
     return this.refreshFeedAlbums(amount);
   }
+
+  async getAlbumOfTheDayPageData(): Promise<DailyAlbumPageData | null> {
+    const dateKey = getCurrentDailyAlbumDateKey();
+    let today = await this.db.getDailyAlbum(dateKey);
+    const latestArchivedAlbum = !today
+      ? (await this.db.getDailyAlbumHistory(1))[0] ?? null
+      : null;
+    let providerAlbums: AlbumData[] = [];
+
+    if (!today) {
+      let candidates = await this.db.getDailyAlbumCandidates();
+
+      if (candidates.length === 0) {
+        providerAlbums = await this.provider.getFeaturedAlbums(
+          DAILY_ALBUM_PROVIDER_POOL_SIZE,
+        );
+
+        if (providerAlbums.length > 0) {
+          await this.db.upsertAlbumsFromProvider(providerAlbums);
+          candidates = await this.db.getDailyAlbumCandidates();
+        }
+      }
+
+      const selectionPool = candidates.length > 0 ? candidates : providerAlbums;
+      const shuffledCandidates = shuffleAlbums(selectionPool);
+
+      for (const candidate of shuffledCandidates) {
+        today = await this.db.createDailyAlbum(dateKey, candidate);
+
+        if (today) {
+          break;
+        }
+      }
+
+      if (!today) {
+        today = await this.db.getDailyAlbum(dateKey);
+      }
+
+      if (!today && latestArchivedAlbum) {
+        today = latestArchivedAlbum;
+      }
+
+      if (!today && shuffledCandidates.length > 0) {
+        const fallbackAlbum = shuffledCandidates[0];
+        today = {
+          dateKey,
+          createdAt: new Date().toISOString(),
+          rank: getDailyAlbumRank(dateKey),
+          album: fallbackAlbum,
+        };
+      }
+    }
+
+    if (!today) {
+      return null;
+    }
+
+    const fullAlbum = (await this.getAlbum(today.album.id)) ?? today.album;
+    const history = await this.db.getDailyAlbumHistory(
+      DAILY_ALBUM_HISTORY_LIMIT + 1,
+    );
+
+    return {
+      today: {
+        ...today,
+        album: fullAlbum,
+      },
+      history: history
+        .filter((entry) => entry.dateKey !== today?.dateKey)
+        .slice(0, DAILY_ALBUM_HISTORY_LIMIT),
+    };
+  }
+}
+
+function shuffleAlbums(albums: AlbumData[]) {
+  const copy = [...albums];
+
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    const current = copy[index];
+    copy[index] = copy[randomIndex];
+    copy[randomIndex] = current;
+  }
+
+  return copy;
 }

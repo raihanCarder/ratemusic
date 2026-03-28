@@ -115,3 +115,52 @@ export async function createOrGetFeaturedListQuery({
 
   return result;
 }
+
+type getFeaturedListItemsQueryParams = {
+  db: SupabaseClient;
+  listSlug: string;
+  amount?: number;
+  rank?: number;
+  ascending?: boolean;
+};
+
+export async function getFeaturedListItemsQuery({
+  db,
+  listSlug,
+  amount,
+  rank,
+  ascending = true,
+}: getFeaturedListItemsQueryParams) {
+  let query = db
+    .from("featured_list_items")
+    .select(
+      `
+        list_id,
+        album_id,
+        rank,
+        created_at,
+        featured_lists!inner(slug),
+        album:albums!featured_list_items_album_id_fkey(
+          provider,
+          provider_album_id,
+          title,
+          artist,
+          album_cover,
+          release_date,
+          raw_payload
+        )
+      `,
+    )
+    .eq("featured_lists.slug", listSlug)
+    .order("rank", { ascending });
+
+  if (typeof rank === "number") {
+    query = query.eq("rank", rank);
+  }
+
+  if (typeof amount === "number") {
+    query = query.limit(amount);
+  }
+
+  return query;
+}

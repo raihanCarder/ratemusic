@@ -13,11 +13,13 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { Loader2 } from "lucide-react";
 import { updateCurrentProfileAction } from "@/src/actions/profiles";
+import { buildGeneratedAvatarUrl, createRandomAvatarSeed } from "@/src/lib/profiles/avatar";
 import type { Profile } from "@/src/lib/profiles/types";
 import {
   MAX_BIO_LENGTH,
   MAX_DISPLAY_NAME_LENGTH,
 } from "@/src/lib/profiles/validation";
+import ProfileAvatar from "./ProfileAvatar";
 
 type ProfileEditDialogProps = {
   open: boolean;
@@ -124,13 +126,64 @@ export default function ProfileEditDialog({
             helperText={`${formState.displayName.trim().length}/${MAX_DISPLAY_NAME_LENGTH}`}
             disabled={isPending}
           />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              mt: 2,
+              mb: 1,
+            }}
+          >
+            <ProfileAvatar
+              src={formState.avatarUrl || null}
+              name={formState.displayName.trim() || formState.username}
+              size={64}
+            />
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="body2" color="text.secondary">
+                Use a generated avatar or keep a custom image URL.
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1, mt: 1.25, flexWrap: "wrap" }}>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  disabled={isPending}
+                  onClick={() =>
+                    setFormState((current) => ({
+                      ...current,
+                      avatarUrl: buildGeneratedAvatarUrl(
+                        createRandomAvatarSeed(current.username),
+                      ),
+                    }))
+                  }
+                >
+                  Randomize avatar
+                </Button>
+                <Button
+                  type="button"
+                  color="inherit"
+                  disabled={isPending}
+                  onClick={() =>
+                    setFormState((current) => ({
+                      ...current,
+                      avatarUrl: "",
+                    }))
+                  }
+                >
+                  Use default avatar
+                </Button>
+              </Box>
+            </Box>
+          </Box>
           <TextField
             label="Avatar URL"
             value={formState.avatarUrl}
             onChange={handleChange("avatarUrl")}
             fullWidth
             margin="normal"
-            placeholder="https://example.com/avatar.jpg"
+            placeholder={buildGeneratedAvatarUrl("music4you")}
+            helperText="Optional. Paste an image URL, or click Randomize avatar to use a generated one."
             disabled={isPending}
           />
           <TextField

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import type { SxProps, Theme } from "@mui/material/styles";
+import { buildGeneratedAvatarUrl } from "@/src/lib/profiles/avatar";
 import {
   getProfileInitials,
   isValidAbsoluteUrl,
@@ -21,7 +22,8 @@ export default function ProfileAvatar({
   size = 40,
   sx,
 }: ProfileAvatarProps) {
-  const safeSrc = src && isValidAbsoluteUrl(src) ? src : null;
+  const safeSrc =
+    src && isValidAbsoluteUrl(src) ? src : buildGeneratedAvatarUrl(name);
   const [imageSrc, setImageSrc] = useState<string | null>(safeSrc);
 
   useEffect(() => {
@@ -46,8 +48,7 @@ export default function ProfileAvatar({
         ...sx,
       }}
     >
-      {getProfileInitials(name)}
+      {!imageSrc ? getProfileInitials(name) : null}
     </Avatar>
   );
 }
-

@@ -41,12 +41,16 @@ export default function LandingPage() {
           backgroundImage:
             "linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
-          maskImage: "linear-gradient(180deg, rgba(0,0,0,0.6), transparent 88%)",
+          maskImage:
+            "linear-gradient(180deg, rgba(0,0,0,0.6), transparent 88%)",
           pointerEvents: "none",
         }}
       />
 
-      <Container maxWidth="xl" sx={{ position: "relative", py: { xs: 7, md: 10 } }}>
+      <Container
+        maxWidth="xl"
+        sx={{ position: "relative", py: { xs: 7, md: 10 } }}
+      >
         <Box
           sx={{
             display: "grid",
@@ -58,7 +62,7 @@ export default function LandingPage() {
           {/* ── Left column ── */}
           <Box>
             <Chip
-              label="Letterboxd energy for music heads"
+              label="The Letterboxd of Music"
               sx={{
                 borderRadius: 999,
                 px: 1,
@@ -87,7 +91,8 @@ export default function LandingPage() {
                 component="span"
                 sx={{
                   display: "block",
-                  background: "linear-gradient(120deg, #9ff4b8 0%, #5de3a8 50%, #44d4ff 100%)",
+                  background:
+                    "linear-gradient(120deg, #9ff4b8 0%, #5de3a8 50%, #44d4ff 100%)",
                   backgroundClip: "text",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
@@ -109,12 +114,14 @@ export default function LandingPage() {
                 fontWeight: 400,
               }}
             >
-              Music4You is a social album diary for people who already debate favorite
-              intros, rank discographies in their head, and want a profile that proves
-              it.
+              Rate albums, share your taste, and see what the people you follow are listening to. Think Letterboxd, but for music.
             </Typography>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 4 }}>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1.5}
+              sx={{ mt: 4 }}
+            >
               <Link href="/feed" style={{ textDecoration: "none" }}>
                 <Button
                   component="span"
@@ -170,7 +177,10 @@ export default function LandingPage() {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "repeat(3, minmax(0, 1fr))" },
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(3, minmax(0, 1fr))",
+                },
                 gap: 1.5,
                 mt: 4,
                 maxWidth: 760,
@@ -200,7 +210,8 @@ export default function LandingPage() {
                       mt: 0.75,
                       color: "#fff7ef",
                       fontWeight: 900,
-                      background: "linear-gradient(120deg, #fff7ef 0%, rgba(255,247,239,0.8) 100%)",
+                      background:
+                        "linear-gradient(120deg, #fff7ef 0%, rgba(255,247,239,0.8) 100%)",
                       backgroundClip: "text",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
@@ -269,8 +280,8 @@ export default function LandingPage() {
                               ? "translateY(8px)"
                               : "translateY(-4px)"
                             : index % 2 === 0
-                            ? "translateY(24px)"
-                            : "translateY(-10px)",
+                              ? "translateY(24px)"
+                              : "translateY(-10px)",
                       },
                     }}
                   >
@@ -300,7 +311,10 @@ export default function LandingPage() {
                       >
                         {album.title}
                       </Typography>
-                      <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.58)" }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "rgba(255,255,255,0.58)" }}
+                      >
                         {album.artist}
                       </Typography>
                     </Box>
@@ -367,7 +381,12 @@ export default function LandingPage() {
               </Typography>
               <Typography
                 variant="h6"
-                sx={{ mt: 1, color: "#fff7ef", fontWeight: 800, lineHeight: 1.2 }}
+                sx={{
+                  mt: 1,
+                  color: "#fff7ef",
+                  fontWeight: 800,
+                  lineHeight: 1.2,
+                }}
               >
                 {point}
               </Typography>

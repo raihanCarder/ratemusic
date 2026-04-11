@@ -31,7 +31,15 @@ function SignInNavButton() {
           textTransform: "none",
           fontWeight: 700,
           borderRadius: 999,
-          px: 2,
+          px: 2.25,
+          fontSize: "0.875rem",
+          borderColor: "rgba(139, 224, 164, 0.45)",
+          color: "rgb(159, 244, 184)",
+          transition: "border-color 0.18s, background 0.18s",
+          "&:hover": {
+            borderColor: "rgba(139, 224, 164, 0.85)",
+            bgcolor: "rgba(139, 224, 164, 0.07)",
+          },
         }}
       >
         Sign in
@@ -51,11 +59,6 @@ async function NavAccountSlot() {
 }
 
 export default function Nav() {
-  /*
-    Stream the shell immediately and resolve account state separately so discovery
-    pages do not wait on auth/profile reads.
-  */
-
   return (
     <NavClient>
       <Suspense fallback={<NavAccountFallback />}>

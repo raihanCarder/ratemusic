@@ -13,23 +13,19 @@ type NavClientProps = {
 };
 
 export default function NavClient({ children }: NavClientProps) {
-  /*
-    Navigation bar at the top of site. Contains Nav Links, SearchBar, Sign-in Button,
-    Logo and title.
-  */
-
   return (
     <AppBar
       position="sticky"
       elevation={0}
       sx={{
-        borderBottom: "1px solid",
-        borderColor: "divider",
-        bgcolor: "background.default",
+        background: "rgba(6, 10, 8, 0.78)",
+        backdropFilter: "blur(24px) saturate(160%)",
+        WebkitBackdropFilter: "blur(24px) saturate(160%)",
+        borderBottom: "1px solid rgba(139, 224, 164, 0.1)",
         color: "text.primary",
       }}
     >
-      <Toolbar sx={{ minHeight: 72, py: 1 }}>
+      <Toolbar sx={{ minHeight: 64, py: 0.75 }}>
         <Box
           sx={{
             width: "100%",
@@ -43,13 +39,8 @@ export default function NavClient({ children }: NavClientProps) {
             columnGap: 2,
           }}
         >
-          {/* Logo + Name */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
+          {/* Logo */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Link
               href="/"
               style={{
@@ -61,15 +52,15 @@ export default function NavClient({ children }: NavClientProps) {
               <Box
                 sx={{
                   position: "relative",
-                  width: { xs: 158, sm: 185 },
-                  height: { xs: 44, sm: 52 },
+                  width: { xs: 148, sm: 172 },
+                  height: { xs: 40, sm: 48 },
                 }}
               >
                 <Image
                   src="/logo_light.png"
                   alt="Music4You"
                   fill
-                  sizes="(max-width: 600px) 158px, 185px"
+                  sizes="(max-width: 600px) 148px, 172px"
                   priority
                   style={{ objectFit: "contain" }}
                 />
@@ -77,12 +68,12 @@ export default function NavClient({ children }: NavClientProps) {
             </Link>
           </Box>
 
-          {/* Center: Links */}
+          {/* Nav links */}
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 0.5,
+              gap: 0.25,
               flexWrap: "wrap",
             }}
           >
@@ -90,10 +81,9 @@ export default function NavClient({ children }: NavClientProps) {
             <NavLink href="/album-of-the-day" name="Album of the Day" />
           </Box>
 
-          {/* Push right side */}
           <Box sx={{ flexGrow: 1 }} />
 
-          {/* Search + Sign in */}
+          {/* Search + account */}
           <Box
             sx={{
               display: "flex",
@@ -109,8 +99,30 @@ export default function NavClient({ children }: NavClientProps) {
               placeholder="Search albums, artists…"
               sx={{
                 flexGrow: 1,
-                width: { xs: "100%", md: 320 },
-                "& .MuiOutlinedInput-root": { borderRadius: 999 },
+                width: { xs: "100%", md: 280 },
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 999,
+                  bgcolor: "rgba(255,255,255,0.04)",
+                  fontSize: "0.875rem",
+                  "& fieldset": {
+                    borderColor: "rgba(255,255,255,0.1)",
+                    transition: "border-color 0.2s",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "rgba(139, 224, 164, 0.28)",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "rgba(139, 224, 164, 0.6)",
+                    borderWidth: 1,
+                  },
+                },
+                "& input": {
+                  color: "rgba(255,255,255,0.85)",
+                  "&::placeholder": {
+                    color: "rgba(255,255,255,0.32)",
+                    opacity: 1,
+                  },
+                },
               }}
             />
             {children}

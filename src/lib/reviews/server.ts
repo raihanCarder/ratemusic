@@ -2,6 +2,7 @@ import "server-only";
 
 import { createSupabaseAdmin } from "@/src/auth/admin";
 import { isUniqueViolationError } from "@/src/lib/db/errors";
+import { logger } from "@/src/lib/logger";
 import type {
   AlbumRatingsPageData,
   RateableAlbumData,
@@ -39,7 +40,7 @@ async function getAlbumRowId(provider: string, providerAlbumId: string) {
     .maybeSingle();
 
   if (error) {
-    console.error("Error fetching album row for ratings:", error);
+    logger.error("Error fetching album row for ratings:", error);
     return null;
   }
 
@@ -70,7 +71,7 @@ async function createAlbumRowForRating(album: RateableAlbumData) {
     return getAlbumRowId(album.provider, album.id);
   }
 
-  console.error("Error creating album row for ratings:", error);
+  logger.error("Error creating album row for ratings:", error);
   return null;
 }
 
@@ -111,11 +112,11 @@ export async function getAlbumRatingsPageData(
   ]);
 
   if (ratingsResult.error) {
-    console.error("Error fetching album ratings:", ratingsResult.error);
+    logger.error("Error fetching album ratings:", ratingsResult.error);
   }
 
   if (currentUserRatingResult.error) {
-    console.error(
+    logger.error(
       "Error fetching current user album rating:",
       currentUserRatingResult.error,
     );
@@ -169,7 +170,7 @@ export async function upsertAlbumRatingForUser(
   );
 
   if (error) {
-    console.error("Error saving album rating:", error);
+    logger.error("Error saving album rating:", error);
     return { errorMessage: "Could not save your rating right now." };
   }
 

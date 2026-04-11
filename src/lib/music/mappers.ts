@@ -5,6 +5,7 @@ import type {
   Song,
 } from "./types";
 import { getDateKeyFromDailyAlbumRank } from "./dailyAlbum";
+import { logger } from "@/src/lib/logger";
 
 export type AlbumRowWithId = AlbumDataInDatabase & { id: string };
 
@@ -44,7 +45,7 @@ export function mapAlbumDataToDatabaseRow(album: AlbumData): AlbumDataInDatabase
   if (releaseDate) {
     const dateObject = new Date(releaseDate);
     if (Number.isNaN(dateObject.getTime())) {
-      console.warn(
+      logger.warn(
         `Invalid date "${releaseDate}" for album "${album.title}", setting to null`,
       );
       releaseDate = null;

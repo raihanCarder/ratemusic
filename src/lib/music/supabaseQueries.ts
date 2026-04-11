@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { AlbumDataInDatabase } from "./types";
+import { logger } from "@/src/lib/logger";
 
 type getAlbumDataFromProviderIdQueryParams = {
   db: SupabaseClient;
@@ -108,9 +109,9 @@ export async function createOrGetFeaturedListQuery({
     .single();
 
   if (result.error) {
-    console.error(`Error upserting featured list ${slug}:`, result.error);
+    logger.error(`Error upserting featured list ${slug}:`, result.error);
   } else {
-    console.log(`Using featured list ${slug}:`, result.data);
+    logger.log(`Using featured list ${slug}:`, result.data);
   }
 
   return result;

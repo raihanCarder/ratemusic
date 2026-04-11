@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getSupabasePublishableKey, getSupabaseUrl } from "./env";
+import { logger } from "@/src/lib/logger";
 
 function isSupabaseSessionCookie(name: string) {
   return name.startsWith("sb-") && name.includes("auth-token");
@@ -55,7 +56,7 @@ export async function getUser() {
 
   if (error) {
     if (!isMissingSessionError(error.message)) {
-      console.error("Error fetching current user:", error.message);
+      logger.error("Error fetching current user:", error.message);
     }
     return null;
   }

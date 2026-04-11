@@ -26,6 +26,7 @@ import {
   formatSupabaseError,
   isUniqueViolationError,
 } from "@/src/lib/db/errors";
+import { logger } from "@/src/lib/logger";
 
 const DAILY_HISTORY_FETCH_LIMIT = 5000;
 
@@ -36,7 +37,7 @@ export class Supabase implements AlbumDatabase {
       const { data, error } = await getAlbumDataFromProviderIdQuery({ db, provider, id });
 
       if (error) {
-        console.error(
+        logger.error(
           "Error fetching album by provider ID:",
           formatSupabaseError(error),
         );
@@ -47,7 +48,7 @@ export class Supabase implements AlbumDatabase {
 
       return mapDatabaseRowToAlbumData(data);
     } catch (error) {
-      console.error("Error in findAlbumByProviderId:", error);
+      logger.error("Error in findAlbumByProviderId:", error);
       return null;
     }
   }
@@ -63,7 +64,7 @@ export class Supabase implements AlbumDatabase {
       const persisted = await persistAlbumsToDatabase(db, albums);
       return persisted.map((album) => mapDatabaseRowToAlbumData(album));
     } catch (error) {
-      console.error("Error in upsertAlbumsFromProvider:", error);
+      logger.error("Error in upsertAlbumsFromProvider:", error);
       return [];
     }
   }
@@ -78,7 +79,7 @@ export class Supabase implements AlbumDatabase {
       });
 
       if (error || !tempData) {
-        console.error("Error fetching albums:", error);
+        logger.error("Error fetching albums:", error);
         return [];
       }
 
@@ -88,7 +89,7 @@ export class Supabase implements AlbumDatabase {
         .filter(Boolean)
         .map((album) => mapDatabaseRowToAlbumData(album!));
     } catch (error) {
-      console.error("Error in getFeaturedAlbums:", error);
+      logger.error("Error in getFeaturedAlbums:", error);
       return [];
     }
   }
@@ -96,13 +97,13 @@ export class Supabase implements AlbumDatabase {
   async setFeaturedAlbums(albums: AlbumData[]): Promise<AlbumData[]> {
     try {
       const db = await createSupabaseAdmin();
-      console.log(`[setFeaturedAlbums] Starting with ${albums.length} albums`);
+      logger.log(`[setFeaturedAlbums] Starting with ${albums.length} albums`);
 
       const upserted = await persistAlbumsToDatabase(db, albums);
       if (upserted.length === 0) return [];
 
-      console.log(`[setFeaturedAlbums] Upserted ${upserted.length} albums`);
-      console.log("[setFeaturedAlbums] Creating/getting feed list...");
+      logger.log(`[setFeaturedAlbums] Upserted ${upserted.length} albums`);
+      logger.log("[setFeaturedAlbums] Creating/getting feed list...");
 
       const { data: list, error: listError } = await createOrGetFeaturedListQuery({
         db,
@@ -111,7 +112,7 @@ export class Supabase implements AlbumDatabase {
       });
 
       if (listError || !list?.id) {
-        console.error("[setFeaturedAlbums] Error with feed list:", listError ?? list);
+        logger.error("[setFeaturedAlbums] Error with feed list:", listError ?? list);
         return upserted.map(mapDatabaseRowToAlbumData);
       }
 
@@ -121,7 +122,7 @@ export class Supabase implements AlbumDatabase {
         .eq("list_id", list.id);
 
       if (deleteError) {
-        console.warn("[setFeaturedAlbums] Error clearing old items:", deleteError);
+        logger.warn("[setFeaturedAlbums] Error clearing old items:", deleteError);
       }
 
       const listItems = upserted
@@ -137,7 +138,7 @@ export class Supabase implements AlbumDatabase {
         .upsert(listItems, { onConflict: "list_id, album_id" });
 
       if (insertError) {
-        console.error(
+        logger.error(
           "[setFeaturedAlbums] Error inserting featured list items:",
           insertError,
         );
@@ -145,7 +146,7 @@ export class Supabase implements AlbumDatabase {
 
       return upserted.map(mapDatabaseRowToAlbumData);
     } catch (error) {
-      console.error("[setFeaturedAlbums] Exception:", error);
+      logger.error("[setFeaturedAlbums] Exception:", error);
       return [];
     }
   }
@@ -163,7 +164,7 @@ export class Supabase implements AlbumDatabase {
       });
 
       if (error || !data) {
-        console.error("Error fetching daily album:", formatSupabaseError(error));
+        logger.error("Error fetching daily album:", formatSupabaseError(error));
         return null;
       }
 
@@ -173,7 +174,7 @@ export class Supabase implements AlbumDatabase {
 
       return mapFeaturedListItemRowToDailyAlbumEntry(rows[0]);
     } catch (error) {
-      console.error("Error in getDailyAlbum:", error);
+      logger.error("Error in getDailyAlbum:", error);
       return null;
     }
   }
@@ -189,7 +190,7 @@ export class Supabase implements AlbumDatabase {
       });
 
       if (error || !data) {
-        console.error("Error fetching daily album history:", error);
+        logger.error("Error fetching daily album history:", error);
         return [];
       }
 
@@ -197,7 +198,7 @@ export class Supabase implements AlbumDatabase {
         .map(mapFeaturedListItemRowToDailyAlbumEntry)
         .filter((entry): entry is DailyAlbumEntry => Boolean(entry));
     } catch (error) {
-      console.error("Error in getDailyAlbumHistory:", error);
+      logger.error("Error in getDailyAlbumHistory:", error);
       return [];
     }
   }
@@ -217,7 +218,7 @@ export class Supabase implements AlbumDatabase {
       });
 
       if (listError || !list?.id) {
-        console.error("Error creating daily album list:", listError);
+        logger.error("Error creating daily album list:", listError);
         return null;
       }
 
@@ -233,7 +234,7 @@ export class Supabase implements AlbumDatabase {
         if (albumForDate) return albumForDate;
 
         if (!isUniqueViolationError(insertError)) {
-          console.error(
+          logger.error(
             "Error inserting daily album item:",
             formatSupabaseError(insertError),
           );
@@ -251,7 +252,7 @@ export class Supabase implements AlbumDatabase {
         });
 
       if (todaysItemsError || !todaysItems) {
-        console.error("Error reading back daily album entries:", todaysItemsError);
+        logger.error("Error reading back daily album entries:", todaysItemsError);
         return null;
       }
 
@@ -276,13 +277,13 @@ export class Supabase implements AlbumDatabase {
           .in("album_id", duplicateAlbumIds);
 
         if (deleteError) {
-          console.error("Error cleaning duplicate daily album entries:", deleteError);
+          logger.error("Error cleaning duplicate daily album entries:", deleteError);
         }
       }
 
       return mapFeaturedListItemRowToDailyAlbumEntry(keeper);
     } catch (error) {
-      console.error("Error in createDailyAlbum:", error);
+      logger.error("Error in createDailyAlbum:", error);
       return null;
     }
   }
@@ -299,7 +300,7 @@ export class Supabase implements AlbumDatabase {
         });
 
       if (historyError) {
-        console.error("Error fetching daily album archive:", historyError);
+        logger.error("Error fetching daily album archive:", historyError);
       }
 
       const usedAlbumIds = new Set(
@@ -315,7 +316,7 @@ export class Supabase implements AlbumDatabase {
         );
 
       if (albumsError || !albumsData) {
-        console.error("Error fetching daily album candidates:", albumsError);
+        logger.error("Error fetching daily album candidates:", albumsError);
         return [];
       }
 
@@ -323,7 +324,7 @@ export class Supabase implements AlbumDatabase {
         .filter((album) => !usedAlbumIds.has(album.id))
         .map(mapDatabaseRowToAlbumData);
     } catch (error) {
-      console.error("Error in getDailyAlbumCandidates:", error);
+      logger.error("Error in getDailyAlbumCandidates:", error);
       return [];
     }
   }
@@ -339,7 +340,7 @@ async function persistAlbumsToDatabase(
   const { data, error } = await upsertAlbumsToDatabaseQuery({ db, rows });
 
   if (error || !data) {
-    console.error("Error upserting albums:", formatSupabaseError(error));
+    logger.error("Error upserting albums:", formatSupabaseError(error));
     return [];
   }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { getSupabasePublishableKey, getSupabaseUrl } from "./auth/env";
+import { logger } from "./lib/logger";
 
 async function getProxyUser(request: NextRequest, response: NextResponse) {
   const supabaseClient = createServerClient(
@@ -39,10 +40,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(url);
     }
   } catch (error) {
-    console.debug(
-      "Auth proxy check:",
-      error instanceof Error ? error.message : String(error),
-    );
+    logger.debug("Auth proxy check:", error instanceof Error ? error.message : String(error));
   }
 
   return response;

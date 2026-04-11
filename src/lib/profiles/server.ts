@@ -3,6 +3,7 @@ import "server-only";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseAdmin } from "@/src/auth/admin";
 import { getUser } from "@/src/auth/server";
+import { logger } from "@/src/lib/logger";
 import type {
   AccountNavUser,
   Profile,
@@ -93,7 +94,7 @@ async function getRecentRatingsByUserId(userId: string): Promise<RecentAlbumRati
     .limit(4);
 
   if (error) {
-    console.error("Error fetching recent profile ratings:", error);
+    logger.error("Error fetching recent profile ratings:", error);
     return [];
   }
 
@@ -142,7 +143,7 @@ async function getProfileById(id: string) {
     .maybeSingle();
 
   if (error) {
-    console.error("Error fetching profile by id:", error);
+    logger.error("Error fetching profile by id:", error);
     return null;
   }
 
@@ -160,7 +161,7 @@ async function isUsernameTaken(username: string, excludeUserId?: string) {
   const { data, error } = await query;
 
   if (error) {
-    console.error("Error checking username availability:", error);
+    logger.error("Error checking username availability:", error);
     return false;
   }
 
@@ -282,7 +283,7 @@ export async function ensureProfileForUser(
     }
   }
 
-  console.error("Error ensuring profile row:", error);
+  logger.error("Error ensuring profile row:", error);
   return await getProfileById(user.id);
 }
 
@@ -320,7 +321,7 @@ export async function getPublicProfileByUsername(username: string) {
     .maybeSingle();
 
   if (error) {
-    console.error("Error fetching public profile:", error);
+    logger.error("Error fetching public profile:", error);
     return null;
   }
 

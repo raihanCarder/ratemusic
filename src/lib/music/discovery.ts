@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import getMusicService from "./Music";
 import MockData from "./testing/mockAlbumData";
+import { logger } from "@/src/lib/logger";
 import {
   DISCOVERY_FEED_CACHE_TAG,
   DISCOVERY_FEED_REVALIDATE_SECONDS,
@@ -28,7 +29,7 @@ export async function getDiscoveryAlbums(amount = FEED_ALBUMS_AMOUNT) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      console.error("Error reading cached discovery feed:", error);
+      logger.error("Error reading cached discovery feed:", error);
     }
   }
 
@@ -40,7 +41,7 @@ export async function getDiscoveryAlbums(amount = FEED_ALBUMS_AMOUNT) {
       return refreshedAlbums.slice(0, amount);
     }
   } catch (error) {
-    console.error("Error refreshing discovery feed:", error);
+    logger.error("Error refreshing discovery feed:", error);
   }
 
   return MockData.slice(0, amount);

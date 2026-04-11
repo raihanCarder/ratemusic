@@ -11,6 +11,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { Profile } from "@/src/lib/profiles/types";
+import { formatJoinedDate } from "@/src/lib/profiles/format";
 import ProfileAvatar from "./ProfileAvatar";
 import ProfileEditDialog from "./ProfileEditDialog";
 
@@ -18,17 +19,6 @@ type ProfilePageViewProps = {
   profile: Profile;
   editable?: boolean;
 };
-
-function formatJoinedDate(createdAt: string) {
-  try {
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      year: "numeric",
-    }).format(new Date(createdAt));
-  } catch {
-    return "Recently";
-  }
-}
 
 export default function ProfilePageView({
   profile,

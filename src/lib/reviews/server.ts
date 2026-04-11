@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createSupabaseAdmin } from "@/src/auth/admin";
+import { isUniqueViolationError } from "@/src/lib/db/errors";
 import type {
   AlbumRatingsPageData,
   RateableAlbumData,
@@ -26,19 +27,6 @@ function normalizeReleaseDate(value: string | null | undefined) {
 
   const dateObject = new Date(value);
   return Number.isNaN(dateObject.getTime()) ? null : value;
-}
-
-function isUniqueViolationError(error: unknown) {
-  if (!error || typeof error !== "object") {
-    return false;
-  }
-
-  const maybeError = error as { code?: unknown; message?: unknown };
-  const code = typeof maybeError.code === "string" ? maybeError.code : "";
-  const message =
-    typeof maybeError.message === "string" ? maybeError.message.toLowerCase() : "";
-
-  return code === "23505" || message.includes("duplicate key");
 }
 
 async function getAlbumRowId(provider: string, providerAlbumId: string) {

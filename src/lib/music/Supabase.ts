@@ -1,12 +1,6 @@
 import { createSupabaseAdmin } from "@/src/auth/admin";
 import { createSupabaseServer } from "@/src/auth/server";
-import {
-  AlbumData,
-  AlbumDataInDatabase,
-  AlbumDatabase,
-  DailyAlbumEntry,
-  Song,
-} from "./types";
+import type { AlbumData, AlbumDatabase, DailyAlbumEntry } from "./types";
 import {
   createOrGetFeaturedListQuery,
   getAlbumDataFromProviderIdQuery,
@@ -19,50 +13,37 @@ import {
   DAILY_ALBUM_LIST_TITLE,
   FEED_ALBUMS_AMOUNT,
 } from "./constants";
+import { getDailyAlbumRank } from "./dailyAlbum";
 import {
-  getDailyAlbumRank,
-  getDateKeyFromDailyAlbumRank,
-} from "./dailyAlbum";
-
-type AlbumRowWithId = AlbumDataInDatabase & {
-  id: string;
-};
-
-type FeaturedListItemRow = {
-  list_id: string;
-  album_id: string;
-  rank: number;
-  created_at: string;
-  album: AlbumDataInDatabase | AlbumDataInDatabase[] | null;
-};
+  type AlbumRowWithId,
+  type FeaturedListItemRow,
+  getJoinedAlbumRow,
+  mapAlbumDataToDatabaseRow,
+  mapDatabaseRowToAlbumData,
+  mapFeaturedListItemRowToDailyAlbumEntry,
+} from "./mappers";
+import {
+  formatSupabaseError,
+  isUniqueViolationError,
+} from "@/src/lib/db/errors";
 
 const DAILY_HISTORY_FETCH_LIMIT = 5000;
 
 export class Supabase implements AlbumDatabase {
-  async findAlbumByProviderId(
-    provider: string,
-    id: string,
-  ): Promise<AlbumData | null> {
+  async findAlbumByProviderId(provider: string, id: string): Promise<AlbumData | null> {
     try {
       const db = await createSupabaseServer();
-      const { data, error: databaseError } =
-        await getAlbumDataFromProviderIdQuery({
-          db,
-          provider,
-          id,
-        });
+      const { data, error } = await getAlbumDataFromProviderIdQuery({ db, provider, id });
 
-      if (databaseError) {
+      if (error) {
         console.error(
           "Error fetching album by provider ID:",
-          formatSupabaseError(databaseError),
+          formatSupabaseError(error),
         );
         return null;
       }
 
-      if (!data) {
-        return null;
-      }
+      if (!data) return null;
 
       return mapDatabaseRowToAlbumData(data);
     } catch (error) {
@@ -79,35 +60,33 @@ export class Supabase implements AlbumDatabase {
   async upsertAlbumsFromProvider(albums: AlbumData[]): Promise<AlbumData[]> {
     try {
       const db = await createSupabaseAdmin();
-      const persistedAlbums = await persistAlbumsToDatabase(db, albums);
-      return persistedAlbums.map((album) => mapDatabaseRowToAlbumData(album));
+      const persisted = await persistAlbumsToDatabase(db, albums);
+      return persisted.map((album) => mapDatabaseRowToAlbumData(album));
     } catch (error) {
       console.error("Error in upsertAlbumsFromProvider:", error);
       return [];
     }
   }
 
-  async getFeaturedAlbums(
-    amount: number,
-    listName: string,
-  ): Promise<AlbumData[]> {
+  async getFeaturedAlbums(amount: number, listName: string): Promise<AlbumData[]> {
     try {
       const db = await createSupabaseAdmin();
+      const { data: tempData, error } = await getFeaturedAlbumsQuery({
+        db,
+        listSlug: listName,
+        amount,
+      });
 
-      const { data: tempData, error: getAlbumsError } =
-        await getFeaturedAlbumsQuery({ db, listSlug: listName, amount });
-
-      if (getAlbumsError || !tempData) {
-        console.error("Error fetching albums:", getAlbumsError);
+      if (error || !tempData) {
+        console.error("Error fetching albums:", error);
         return [];
       }
 
       const data = tempData as Pick<FeaturedListItemRow, "album">[];
-
       return data
         .map((row) => getJoinedAlbumRow(row.album))
-        .filter((album): album is AlbumDataInDatabase => Boolean(album))
-        .map((album) => mapDatabaseRowToAlbumData(album));
+        .filter(Boolean)
+        .map((album) => mapDatabaseRowToAlbumData(album!));
     } catch (error) {
       console.error("Error in getFeaturedAlbums:", error);
       return [];
@@ -119,39 +98,21 @@ export class Supabase implements AlbumDatabase {
       const db = await createSupabaseAdmin();
       console.log(`[setFeaturedAlbums] Starting with ${albums.length} albums`);
 
-      const upsertedAlbumsWithIds = await persistAlbumsToDatabase(db, albums);
+      const upserted = await persistAlbumsToDatabase(db, albums);
+      if (upserted.length === 0) return [];
 
-      if (upsertedAlbumsWithIds.length === 0) {
-        return [];
-      }
-
-      console.log(
-        `[setFeaturedAlbums] Upserted ${upsertedAlbumsWithIds.length} albums`,
-      );
-
+      console.log(`[setFeaturedAlbums] Upserted ${upserted.length} albums`);
       console.log("[setFeaturedAlbums] Creating/getting feed list...");
-      const { data: list, error: listError } =
-        await createOrGetFeaturedListQuery({
-          db,
-          slug: "feed",
-          title: "Feed",
-        });
 
-      if (listError) {
-        console.error("[setFeaturedAlbums] Error with feed list:", listError);
-        return upsertedAlbumsWithIds.map((album) =>
-          mapDatabaseRowToAlbumData(album),
-        );
-      }
+      const { data: list, error: listError } = await createOrGetFeaturedListQuery({
+        db,
+        slug: "feed",
+        title: "Feed",
+      });
 
-      if (!list?.id) {
-        console.error(
-          "[setFeaturedAlbums] No list returned from createOrGetFeaturedListQuery",
-          list,
-        );
-        return upsertedAlbumsWithIds.map((album) =>
-          mapDatabaseRowToAlbumData(album),
-        );
+      if (listError || !list?.id) {
+        console.error("[setFeaturedAlbums] Error with feed list:", listError ?? list);
+        return upserted.map(mapDatabaseRowToAlbumData);
       }
 
       const { error: deleteError } = await db
@@ -160,13 +121,10 @@ export class Supabase implements AlbumDatabase {
         .eq("list_id", list.id);
 
       if (deleteError) {
-        console.warn(
-          "[setFeaturedAlbums] Error clearing old items:",
-          deleteError,
-        );
+        console.warn("[setFeaturedAlbums] Error clearing old items:", deleteError);
       }
 
-      const listItems = upsertedAlbumsWithIds
+      const listItems = upserted
         .map((album, index) => ({
           list_id: list.id,
           album_id: album.id,
@@ -185,7 +143,7 @@ export class Supabase implements AlbumDatabase {
         );
       }
 
-      return upsertedAlbumsWithIds.map((album) => mapDatabaseRowToAlbumData(album));
+      return upserted.map(mapDatabaseRowToAlbumData);
     } catch (error) {
       console.error("[setFeaturedAlbums] Exception:", error);
       return [];
@@ -210,16 +168,10 @@ export class Supabase implements AlbumDatabase {
       }
 
       const rows = (data as FeaturedListItemRow[]).sort(
-        (left, right) =>
-          new Date(left.created_at).getTime() - new Date(right.created_at).getTime(),
+        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
       );
 
-      const entry = rows[0];
-      if (!entry) {
-        return null;
-      }
-
-      return mapFeaturedListItemRowToDailyAlbumEntry(entry);
+      return mapFeaturedListItemRowToDailyAlbumEntry(rows[0]);
     } catch (error) {
       console.error("Error in getDailyAlbum:", error);
       return null;
@@ -242,7 +194,7 @@ export class Supabase implements AlbumDatabase {
       }
 
       return (data as FeaturedListItemRow[])
-        .map((row) => mapFeaturedListItemRowToDailyAlbumEntry(row))
+        .map(mapFeaturedListItemRowToDailyAlbumEntry)
         .filter((entry): entry is DailyAlbumEntry => Boolean(entry));
     } catch (error) {
       console.error("Error in getDailyAlbumHistory:", error);
@@ -250,15 +202,10 @@ export class Supabase implements AlbumDatabase {
     }
   }
 
-  async createDailyAlbum(
-    dateKey: string,
-    album: AlbumData,
-  ): Promise<DailyAlbumEntry | null> {
+  async createDailyAlbum(dateKey: string, album: AlbumData): Promise<DailyAlbumEntry | null> {
     try {
-      const existingAlbum = await this.getDailyAlbum(dateKey);
-      if (existingAlbum) {
-        return existingAlbum;
-      }
+      const existing = await this.getDailyAlbum(dateKey);
+      if (existing) return existing;
 
       const db = await createSupabaseAdmin();
       const rank = getDailyAlbumRank(dateKey);
@@ -275,31 +222,22 @@ export class Supabase implements AlbumDatabase {
       }
 
       const persistedAlbum = (await persistAlbumsToDatabase(db, [album]))[0];
-      if (!persistedAlbum) {
-        return null;
-      }
+      if (!persistedAlbum) return null;
 
-      const { error: insertError } = await db.from("featured_list_items").insert({
-        list_id: list.id,
-        album_id: persistedAlbum.id,
-        rank,
-      });
+      const { error: insertError } = await db
+        .from("featured_list_items")
+        .insert({ list_id: list.id, album_id: persistedAlbum.id, rank });
 
       if (insertError) {
         const albumForDate = await this.getDailyAlbum(dateKey);
+        if (albumForDate) return albumForDate;
 
-        if (albumForDate) {
-          return albumForDate;
+        if (!isUniqueViolationError(insertError)) {
+          console.error(
+            "Error inserting daily album item:",
+            formatSupabaseError(insertError),
+          );
         }
-
-        if (isUniqueViolationError(insertError)) {
-          return null;
-        }
-
-        console.error(
-          "Error inserting daily album item:",
-          formatSupabaseError(insertError),
-        );
         return null;
       }
 
@@ -313,27 +251,21 @@ export class Supabase implements AlbumDatabase {
         });
 
       if (todaysItemsError || !todaysItems) {
-        console.error(
-          "Error reading back daily album entries:",
-          todaysItemsError,
-        );
+        console.error("Error reading back daily album entries:", todaysItemsError);
         return null;
       }
 
       const rows = (todaysItems as FeaturedListItemRow[]).sort(
-        (left, right) =>
-          new Date(left.created_at).getTime() - new Date(right.created_at).getTime(),
+        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
       );
-      const keeper = rows[0];
 
-      if (!keeper) {
-        return null;
-      }
+      const keeper = rows[0];
+      if (!keeper) return null;
 
       const duplicateAlbumIds = rows
         .slice(1)
         .map((row) => row.album_id)
-        .filter((albumId) => albumId !== keeper.album_id);
+        .filter((id) => id !== keeper.album_id);
 
       if (duplicateAlbumIds.length > 0) {
         const { error: deleteError } = await db
@@ -389,7 +321,7 @@ export class Supabase implements AlbumDatabase {
 
       return (albumsData as AlbumRowWithId[])
         .filter((album) => !usedAlbumIds.has(album.id))
-        .map((album) => mapDatabaseRowToAlbumData(album));
+        .map(mapDatabaseRowToAlbumData);
     } catch (error) {
       console.error("Error in getDailyAlbumCandidates:", error);
       return [];
@@ -401,15 +333,10 @@ async function persistAlbumsToDatabase(
   db: ReturnType<typeof createSupabaseAdmin>,
   albums: AlbumData[],
 ): Promise<AlbumRowWithId[]> {
-  if (albums.length === 0) {
-    return [];
-  }
+  if (albums.length === 0) return [];
 
-  const rows = albums.map((album) => mapAlbumDataToDatabaseRow(album));
-  const { data, error } = await upsertAlbumsToDatabaseQuery({
-    db,
-    rows,
-  });
+  const rows = albums.map(mapAlbumDataToDatabaseRow);
+  const { data, error } = await upsertAlbumsToDatabaseQuery({ db, rows });
 
   if (error || !data) {
     console.error("Error upserting albums:", formatSupabaseError(error));
@@ -426,178 +353,4 @@ async function persistAlbumsToDatabase(
   return rows
     .map((row) => albumByKey.get(`${row.provider}:${row.provider_album_id}`))
     .filter((album): album is AlbumRowWithId => Boolean(album));
-}
-
-function mapFeaturedListItemRowToDailyAlbumEntry(
-  row: FeaturedListItemRow | null | undefined,
-): DailyAlbumEntry | null {
-  const album = getJoinedAlbumRow(row?.album);
-
-  if (!row || !album) {
-    return null;
-  }
-
-  return {
-    dateKey: getDateKeyFromDailyAlbumRank(row.rank),
-    createdAt: row.created_at,
-    rank: row.rank,
-    album: mapDatabaseRowToAlbumData(album),
-  };
-}
-
-function mapAlbumDataToDatabaseRow(album: AlbumData): AlbumDataInDatabase {
-  let releaseDate = album.releaseDate ?? null;
-  if (releaseDate) {
-    const dateObject = new Date(releaseDate);
-    if (Number.isNaN(dateObject.getTime())) {
-      console.warn(
-        `Invalid date "${releaseDate}" for album "${album.title}", setting to null`,
-      );
-      releaseDate = null;
-    }
-  }
-
-  return {
-    provider: album.provider,
-    provider_album_id: album.id,
-    title: album.title,
-    artist: album.artist,
-    album_cover: album.image,
-    release_date: releaseDate,
-    raw_payload: buildRawPayload(album),
-  };
-}
-
-function buildRawPayload(album: AlbumData) {
-  const songs = album.songs?.length ? album.songs : undefined;
-
-  if (!songs) {
-    return album.raw ?? null;
-  }
-
-  if (album.raw && typeof album.raw === "object" && !Array.isArray(album.raw)) {
-    return {
-      ...(album.raw as Record<string, unknown>),
-      songs,
-    };
-  }
-
-  if (album.raw) {
-    return {
-      source: album.raw,
-      songs,
-    };
-  }
-
-  return { songs };
-}
-
-function mapDatabaseRowToAlbumData(data: AlbumDataInDatabase): AlbumData {
-  const songs = extractSongsFromRawPayload(data?.raw_payload);
-
-  return {
-    provider: data?.provider,
-    id: data?.provider_album_id,
-    title: data?.title,
-    artist: data?.artist,
-    image: data?.album_cover ?? "",
-    releaseDate: data?.release_date ? String(data.release_date) : null,
-    songs,
-    raw: data?.raw_payload ?? null,
-  };
-}
-
-function extractSongsFromRawPayload(rawPayload: unknown): Song[] {
-  if (!rawPayload || typeof rawPayload !== "object" || Array.isArray(rawPayload)) {
-    return [];
-  }
-
-  const songs = (rawPayload as { songs?: unknown }).songs;
-  if (!Array.isArray(songs)) {
-    return [];
-  }
-
-  return songs
-    .map((song, index) => normalizeSong(song, index))
-    .filter((song): song is Song => Boolean(song));
-}
-
-function normalizeSong(song: unknown, index: number): Song | null {
-  if (!song || typeof song !== "object" || Array.isArray(song)) {
-    return null;
-  }
-
-  const maybeSong = song as Partial<Song>;
-  if (typeof maybeSong.title !== "string" || maybeSong.title.trim() === "") {
-    return null;
-  }
-
-  return {
-    id:
-      typeof maybeSong.id === "string" && maybeSong.id.trim() !== ""
-        ? maybeSong.id
-        : `track-${index + 1}-${maybeSong.title}`,
-    title: maybeSong.title,
-    trackNumber:
-      typeof maybeSong.trackNumber === "number"
-        ? maybeSong.trackNumber
-        : index + 1,
-    durationMs:
-      typeof maybeSong.durationMs === "number"
-        ? maybeSong.durationMs
-        : undefined,
-  };
-}
-
-function getJoinedAlbumRow(
-  album: AlbumDataInDatabase | AlbumDataInDatabase[] | null | undefined,
-) {
-  if (!album) {
-    return null;
-  }
-
-  if (Array.isArray(album)) {
-    return album[0] ?? null;
-  }
-
-  return album;
-}
-
-function isUniqueViolationError(error: unknown) {
-  if (!error || typeof error !== "object") {
-    return false;
-  }
-
-  const maybeError = error as { code?: unknown; message?: unknown; details?: unknown };
-  const code = typeof maybeError.code === "string" ? maybeError.code : "";
-  const message =
-    typeof maybeError.message === "string" ? maybeError.message.toLowerCase() : "";
-  const details =
-    typeof maybeError.details === "string" ? maybeError.details.toLowerCase() : "";
-
-  return (
-    code === "23505" ||
-    message.includes("duplicate key") ||
-    details.includes("duplicate key")
-  );
-}
-
-function formatSupabaseError(error: unknown) {
-  if (!error || typeof error !== "object") {
-    return error;
-  }
-
-  const maybeError = error as {
-    code?: unknown;
-    message?: unknown;
-    details?: unknown;
-    hint?: unknown;
-  };
-
-  return {
-    code: typeof maybeError.code === "string" ? maybeError.code : "",
-    message: typeof maybeError.message === "string" ? maybeError.message : "",
-    details: typeof maybeError.details === "string" ? maybeError.details : "",
-    hint: typeof maybeError.hint === "string" ? maybeError.hint : "",
-  };
 }

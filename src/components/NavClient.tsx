@@ -51,7 +51,7 @@ export default function NavClient({ children }: NavClientProps) {
             }}
           >
             <Link
-              href="/feed"
+              href="/"
               style={{
                 display: "flex",
                 alignItems: "center",

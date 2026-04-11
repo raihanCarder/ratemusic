@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { signUpUserAction } from "@/src/actions/users";
 import { useTransition } from "react";
 import { Loader2 } from "lucide-react";
+import { buildAuthHref, normalizeNextPath } from "@/src/lib/auth/next";
 import { isValidUsername } from "@/src/lib/profiles/validation";
 
 export default function SignUpForm() {
@@ -18,7 +19,9 @@ export default function SignUpForm() {
   const [usernameError, setUsernameError] = useState<string | null>(null);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const nextPath = normalizeNextPath(searchParams.get("next"));
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,7 +56,7 @@ export default function SignUpForm() {
       if (errorMessage) {
         setFormError(errorMessage);
       } else {
-        router.push("/signin");
+        router.push(buildAuthHref("/signin", nextPath));
         toast.success("Verification link has been sent to your Email");
       }
     });

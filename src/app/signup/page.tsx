@@ -2,12 +2,16 @@
 
 import { Box, Paper, Typography, Link as MuiLink } from "@mui/material";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { buildAuthHref, normalizeNextPath } from "@/src/lib/auth/next";
 import SignUpForm from "./_components/SignUpForm";
 
 export default function SignUpPage() {
   /*
    * Sign Up Page used to Sign up for site. Sign-up done in SignUpForm Component.
    */
+  const searchParams = useSearchParams();
+  const nextPath = normalizeNextPath(searchParams.get("next"));
 
   return (
     <Box
@@ -35,7 +39,11 @@ export default function SignUpPage() {
 
         <Typography variant="body2" align="center" sx={{ mt: 2.5 }}>
           Already have an account?{" "}
-          <MuiLink component={Link} href="/signin" underline="hover">
+          <MuiLink
+            component={Link}
+            href={buildAuthHref("/signin", nextPath)}
+            underline="hover"
+          >
             Sign in
           </MuiLink>
         </Typography>

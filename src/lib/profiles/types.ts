@@ -7,6 +7,15 @@ export type ProfileRow = {
   created_at: string;
 };
 
+export type RecentAlbumRating = {
+  albumId: string;
+  title: string;
+  artist: string;
+  image: string;
+  rating: number;
+  ratedAt: string;
+};
+
 export type Profile = {
   id: string;
   username: string;
@@ -16,6 +25,7 @@ export type Profile = {
   createdAt: string;
   preferredName: string;
   initials: string;
+  recentRatings: RecentAlbumRating[];
 };
 
 export type AccountNavUser = {
@@ -33,4 +43,3 @@ export type UpdateProfileInput = {
   avatarUrl: string;
   bio: string;
 };
-

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
@@ -35,6 +36,9 @@ export default function ProfilePageView({
 }: ProfilePageViewProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const joinedDate = formatJoinedDate(profile.createdAt);
+  const recentRatings = Array.isArray(profile?.recentRatings)
+    ? profile.recentRatings
+    : [];
 
   return (
     <Box component="main" sx={{ py: { xs: 3, md: 5 } }}>
@@ -183,41 +187,124 @@ export default function ProfilePageView({
             }}
           >
             <Typography variant="h6" sx={{ fontWeight: 800 }}>
-              Activity
+              Recent ratings
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
-              Ratings, reviews, and diary-style listening activity will land here once
-              the social layer is wired in.
+              {recentRatings.length > 0
+                ? "The latest four album ratings from this profile. Click any cover to open the album page."
+                : editable
+                  ? "Once you start rating albums, your latest four will show up here for visitors."
+                  : "This profile has not rated any albums yet."}
             </Typography>
 
-            <Box
-              sx={{
-                display: "grid",
-                gap: 1.5,
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                mt: 2.5,
-              }}
-            >
-              {["Reviews", "Lists", "Following"].map((label) => (
-                <Box
-                  key={label}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 3,
-                    bgcolor: "rgba(255,255,255,0.03)",
-                    border: "1px solid",
-                    borderColor: "divider",
-                  }}
-                >
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                    {label}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Coming soon
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
+            {recentRatings.length > 0 ? (
+              <Box
+                sx={{
+                  display: "grid",
+                  gap: 1.5,
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  mt: 2.5,
+                }}
+              >
+                {recentRatings.map((rating) => (
+                  <Link
+                    key={`${rating.albumId}-${rating.ratedAt}`}
+                    href={`/album/${rating.albumId}`}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Box
+                      sx={{
+                        borderRadius: 3,
+                        overflow: "hidden",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        bgcolor: "rgba(255,255,255,0.03)",
+                        transition: "transform 180ms ease, border-color 180ms ease",
+                        "&:hover": {
+                          transform: "translateY(-2px)",
+                          borderColor: "rgba(139, 224, 164, 0.36)",
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: "relative",
+                          width: "100%",
+                          aspectRatio: "1 / 1",
+                          bgcolor: "rgba(255,255,255,0.04)",
+                        }}
+                      >
+                        {rating.image ? (
+                          <Image
+                            src={rating.image}
+                            alt={`${rating.title} by ${rating.artist}`}
+                            fill
+                            sizes="(max-width: 1200px) 50vw, 220px"
+                            style={{ objectFit: "cover" }}
+                          />
+                        ) : (
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              inset: 0,
+                              display: "grid",
+                              placeItems: "center",
+                              px: 2,
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle2"
+                              align="center"
+                              color="text.secondary"
+                            >
+                              No cover
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+
+                      <Box sx={{ p: 1.5 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 700,
+                            lineHeight: 1.25,
+                            display: "-webkit-box",
+                            overflow: "hidden",
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: 2,
+                          }}
+                        >
+                          {rating.title}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{
+                            mt: 0.5,
+                            display: "block",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {rating.artist}
+                        </Typography>
+                        <Chip
+                          label={`${rating.rating}/10`}
+                          size="small"
+                          sx={{
+                            mt: 1.25,
+                            borderRadius: 999,
+                            bgcolor: "rgba(139, 224, 164, 0.12)",
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Link>
+                ))}
+              </Box>
+            ) : null}
           </Paper>
 
           <Paper

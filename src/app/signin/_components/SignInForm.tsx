@@ -2,16 +2,19 @@
 import { useState } from "react";
 
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { signInUserAction } from "@/src/actions/users";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
+import { normalizeNextPath } from "@/src/lib/auth/next";
 
 export default function SignInForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const nextPath = normalizeNextPath(searchParams.get("next"));
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,7 +39,7 @@ export default function SignInForm() {
       if (errorMessage) {
         setFormError(errorMessage);
       } else {
-        router.push("/feed");
+        router.push(nextPath ?? "/feed");
         router.refresh();
         toast.success("User signed in!");
       }

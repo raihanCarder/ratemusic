@@ -59,10 +59,10 @@ export async function signUpUserAction({
     });
 
     if (SignUpError) {
+      const normalizedMessage = SignUpError.message?.toLowerCase() ?? "";
       const usernameAlreadyExists =
-        SignUpError.message?.includes("duplicate") ||
-        SignUpError.message?.includes("username") ||
-        "Database error saving new user";
+        normalizedMessage.includes("duplicate") ||
+        normalizedMessage.includes("username");
 
       if (usernameAlreadyExists) {
         return { errorMessage: "That username is already taken." };

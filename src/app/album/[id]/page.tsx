@@ -1,6 +1,9 @@
 import AlbumView from "@/src/components/AlbumView";
+import { buildAuthHref } from "@/src/lib/auth/next";
+import { getUser } from "@/src/auth/server";
 import { notFound } from "next/navigation";
 import getMusicService from "@/src/lib/music/Music";
+import { getAlbumRatingsPageData } from "@/src/lib/reviews/server";
 import MockData from "@/src/lib/music/testing/mockAlbumData";
 
 export default async function AlbumPage({
@@ -27,5 +30,15 @@ export default async function AlbumPage({
 
   if (!album) notFound();
 
-  return <AlbumView album={album} />;
+  const user = await getUser();
+  const ratings = await getAlbumRatingsPageData(album, user?.id ?? null);
+
+  return (
+    <AlbumView
+      album={album}
+      ratings={ratings}
+      isSignedIn={Boolean(user)}
+      signUpHref={buildAuthHref("/signup", `/album/${id}`)}
+    />
+  );
 }

@@ -2,12 +2,16 @@
 import SignInForm from "./_components/SignInForm";
 import { Box, Paper, Typography, Link as MuiLink } from "@mui/material";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { buildAuthHref, normalizeNextPath } from "@/src/lib/auth/next";
 
 export default function SignInPage() {
   /*
    * Sign-In Page. Can be routed to Sign-up page or back to /feed if account exists.
    * Sign-In done in /components/SignInForm.tsx
    */
+  const searchParams = useSearchParams();
+  const nextPath = normalizeNextPath(searchParams.get("next"));
 
   return (
     <Box
@@ -49,7 +53,11 @@ export default function SignInPage() {
 
         <Typography variant="body2" align="center" sx={{ mt: 2.5 }}>
           New user?{" "}
-          <MuiLink component={Link} href="/signup" underline="hover">
+          <MuiLink
+            component={Link}
+            href={buildAuthHref("/signup", nextPath)}
+            underline="hover"
+          >
             Create an account
           </MuiLink>
         </Typography>

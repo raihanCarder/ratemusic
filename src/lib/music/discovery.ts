@@ -10,13 +10,7 @@ import {
 const getCachedDiscoveryAlbums = unstable_cache(
   async (amount: number) => {
     const musicService = getMusicService();
-    const albums = await musicService.getCachedFeedAlbums(amount);
-
-    if (albums.length < amount) {
-      throw new Error("DISCOVERY_FEED_INCOMPLETE");
-    }
-
-    return albums;
+    return musicService.getCachedFeedAlbums(amount);
   },
   ["discovery-feed"],
   {
@@ -27,12 +21,13 @@ const getCachedDiscoveryAlbums = unstable_cache(
 
 export async function getDiscoveryAlbums(amount = FEED_ALBUMS_AMOUNT) {
   try {
-    return await getCachedDiscoveryAlbums(amount);
+    const albums = await getCachedDiscoveryAlbums(amount);
+
+    if (albums.length >= amount) {
+      return albums;
+    }
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message !== "DISCOVERY_FEED_INCOMPLETE"
-    ) {
+    if (error instanceof Error) {
       console.error("Error reading cached discovery feed:", error);
     }
   }
@@ -50,4 +45,3 @@ export async function getDiscoveryAlbums(amount = FEED_ALBUMS_AMOUNT) {
 
   return MockData.slice(0, amount);
 }
-

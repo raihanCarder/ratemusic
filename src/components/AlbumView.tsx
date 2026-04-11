@@ -1,6 +1,7 @@
 "use client";
 
 import type { AlbumData } from "@/src/lib/music/types";
+import type { AlbumRatingsPageData } from "@/src/lib/reviews/types";
 import Image from "next/image";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -8,9 +9,22 @@ import Typography from "@mui/material/Typography";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
+import AlbumRatingSection from "./AlbumRatingSection";
 import SongView from "./SongView";
 
-export default function AlbumView({ album }: { album: AlbumData }) {
+type AlbumViewProps = {
+  album: AlbumData;
+  ratings: AlbumRatingsPageData;
+  isSignedIn: boolean;
+  signUpHref: string;
+};
+
+export default function AlbumView({
+  album,
+  ratings,
+  isSignedIn,
+  signUpHref,
+}: AlbumViewProps) {
   /*
     AlbumView is Shown when you want a view of an album and all it's information.
   */
@@ -52,6 +66,13 @@ export default function AlbumView({ album }: { album: AlbumData }) {
           {album.artist}
         </Typography>
       </Box>
+
+      <AlbumRatingSection
+        album={album}
+        ratings={ratings}
+        isSignedIn={isSignedIn}
+        signUpHref={signUpHref}
+      />
 
       {/* Track list */}
       <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>

@@ -7,6 +7,7 @@ import type {
   AccountNavUser,
   Profile,
   ProfileRow,
+  RecentAlbumRating,
   UpdateProfileInput,
 } from "./types";
 import {
@@ -35,7 +36,74 @@ type UpdateCurrentProfileResult = {
   errorMessage: string | null;
 };
 
-function mapProfileRowToProfile(row: ProfileRow): Profile {
+type RecentRatingRow = {
+  rating: number;
+  updated_at: string;
+  album:
+    | {
+        provider_album_id: string;
+        title: string;
+        artist: string;
+        album_cover: string | null;
+      }
+    | {
+        provider_album_id: string;
+        title: string;
+        artist: string;
+        album_cover: string | null;
+      }[]
+    | null;
+};
+
+function mapRecentRatingRow(row: RecentRatingRow): RecentAlbumRating | null {
+  const album = Array.isArray(row.album) ? row.album[0] : row.album;
+
+  if (!album) {
+    return null;
+  }
+
+  return {
+    albumId: album.provider_album_id,
+    title: album.title,
+    artist: album.artist,
+    image: album.album_cover ?? "",
+    rating: row.rating,
+    ratedAt: row.updated_at,
+  };
+}
+
+async function getRecentRatingsByUserId(userId: string): Promise<RecentAlbumRating[]> {
+  const admin = createSupabaseAdmin();
+  const { data, error } = await admin
+    .from("reviews")
+    .select(
+      `
+        rating,
+        updated_at,
+        album:albums!reviews_album_id_fkey(
+          provider_album_id,
+          title,
+          artist,
+          album_cover
+        )
+      `,
+    )
+    .eq("user_id", userId)
+    .order("updated_at", { ascending: false })
+    .limit(4);
+
+  if (error) {
+    console.error("Error fetching recent profile ratings:", error);
+    return [];
+  }
+
+  return ((data as RecentRatingRow[] | null) ?? [])
+    .map((row) => mapRecentRatingRow(row))
+    .filter((rating): rating is RecentAlbumRating => Boolean(rating));
+}
+
+async function mapProfileRowToProfile(row: ProfileRow): Promise<Profile> {
+  const recentRatings = await getRecentRatingsByUserId(row.id);
   const preferredName = getPreferredProfileName({
     displayName: row.display_name,
     username: row.username,
@@ -50,6 +118,7 @@ function mapProfileRowToProfile(row: ProfileRow): Profile {
     createdAt: row.created_at,
     preferredName,
     initials: getProfileInitials(preferredName),
+    recentRatings,
   };
 }
 
@@ -77,7 +146,7 @@ async function getProfileById(id: string) {
     return null;
   }
 
-  return data ? mapProfileRowToProfile(data) : null;
+  return data ? await mapProfileRowToProfile(data) : null;
 }
 
 async function isUsernameTaken(username: string, excludeUserId?: string) {
@@ -185,7 +254,7 @@ export async function ensureProfileForUser(
     .single();
 
   if (!error && data) {
-    return mapProfileRowToProfile(data);
+    return await mapProfileRowToProfile(data);
   }
 
   if (error?.message?.toLowerCase().includes("username")) {
@@ -209,7 +278,7 @@ export async function ensureProfileForUser(
       .single();
 
     if (!retryResult.error && retryResult.data) {
-      return mapProfileRowToProfile(retryResult.data);
+      return await mapProfileRowToProfile(retryResult.data);
     }
   }
 
@@ -255,7 +324,7 @@ export async function getPublicProfileByUsername(username: string) {
     return null;
   }
 
-  return data ? mapProfileRowToProfile(data) : null;
+  return data ? await mapProfileRowToProfile(data) : null;
 }
 
 export async function updateCurrentProfile(
@@ -328,7 +397,7 @@ export async function updateCurrentProfile(
   }
 
   return {
-    profile: mapProfileRowToProfile(data as ProfileRow),
+    profile: await mapProfileRowToProfile(data as ProfileRow),
     previousUsername: currentProfile.username,
     errorMessage: null,
   };

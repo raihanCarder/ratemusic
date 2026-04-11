@@ -1,0 +1,50 @@
+"use client";
+
+import SignUpForm from "./SignUpForm";
+import { Box, Paper, Typography, Link as MuiLink } from "@mui/material";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { buildAuthHref, normalizeNextPath } from "@/src/lib/auth/next";
+
+export default function SignUpContent() {
+  const searchParams = useSearchParams();
+  const nextPath = normalizeNextPath(searchParams.get("next"));
+
+  return (
+    <Box
+      sx={{
+        minHeight: "calc(100vh - 180px)",
+        display: "grid",
+        placeItems: "center",
+        px: 2,
+        py: 5,
+      }}
+    >
+      <Paper
+        sx={{
+          width: "100%",
+          maxWidth: 500,
+          p: { xs: 3, md: 4 },
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 4,
+          backgroundImage:
+            "linear-gradient(180deg, rgba(139, 224, 164, 0.1), rgba(18, 18, 18, 0.98))",
+        }}
+      >
+        <SignUpForm />
+
+        <Typography variant="body2" align="center" sx={{ mt: 2.5 }}>
+          Already have an account?{" "}
+          <MuiLink
+            component={Link}
+            href={buildAuthHref("/signin", nextPath)}
+            underline="hover"
+          >
+            Sign in
+          </MuiLink>
+        </Typography>
+      </Paper>
+    </Box>
+  );
+}

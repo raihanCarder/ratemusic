@@ -1,0 +1,2 @@
+-- Intentionally empty.
+-- Required app bootstrap rows live in migrations so the repo stays authoritative.

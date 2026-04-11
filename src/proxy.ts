@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { getSupabasePublishableKey, getSupabaseUrl } from "./auth/env";
 
 async function getProxyUser(request: NextRequest, response: NextResponse) {
   const supabaseClient = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    getSupabaseUrl(),
+    getSupabasePublishableKey(),
     {
       cookies: {
         getAll() {
@@ -50,4 +51,3 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: ["/signin/:path*", "/signup/:path*"],
 };
-

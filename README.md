@@ -90,7 +90,30 @@ Required variables:
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-### 3. Run development server ▶️
+### 3. Start local Supabase ▶️
+
+Repo-tracked migrations now live in `supabase/migrations`. The repo, not the
+Supabase dashboard, is the source of truth for schema changes.
+
+Prerequisite: Docker must be running locally before you start the Supabase stack.
+
+```bash
+npm run supabase:start
+```
+
+Reset the local database from migration history:
+
+```bash
+npm run supabase:db:reset
+```
+
+Check local service URLs and generated keys:
+
+```bash
+npm run supabase:status
+```
+
+### 4. Run development server ▶️
 
 ```bash
 npm run dev
@@ -104,6 +127,57 @@ Open `http://localhost:3000`.
 - `npm run build` production build
 - `npm run start` run production build
 - `npm run lint` lint project
+- `npm run supabase:start` start the local Supabase stack
+- `npm run supabase:stop` stop the local Supabase stack
+- `npm run supabase:status` print local Supabase URLs and keys
+- `npm run supabase:db:reset` rebuild the local database from repo migrations
+- `npm run supabase:db:push` apply local migrations to a linked remote Supabase project
+- `npm run supabase:migration:new -- <name>` create a new migration file
+
+## Database Workflow 🗄️
+
+### Repo-first migrations
+
+- Create schema changes in `supabase/migrations`, not in the dashboard.
+- Use the dashboard for logs, data inspection, auth/provider settings, and emergency fixes only.
+- If an emergency dashboard change happens, add the equivalent migration immediately so the repo stays authoritative.
+
+### Common workflow
+
+Create a migration:
+
+```bash
+npm run supabase:migration:new -- add_playlists
+```
+
+Apply the full migration history locally:
+
+```bash
+npm run supabase:db:reset
+```
+
+Push pending migrations to a linked Supabase project:
+
+```bash
+npm run supabase:db:push
+```
+
+Before `supabase:db:push`, link the repo to the hosted project once:
+
+```bash
+npx supabase link --project-ref <your-project-ref>
+```
+
+### What is a migration?
+
+A migration is a versioned SQL file that describes one ordered schema change.
+Examples include creating a table, adding an index, changing an RLS policy, or
+adding a trigger or function.
+
+The difference from editing in the dashboard is that migrations are reviewable,
+repeatable, and replayable on a fresh database. The dashboard changes the current
+state directly, but it does not give you a reliable repo history unless you copy
+those changes back into versioned SQL.
 
 ## In Progress / Next Milestones 🛣️
 

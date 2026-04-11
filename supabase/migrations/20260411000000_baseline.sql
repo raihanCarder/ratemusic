@@ -1,16 +1,5 @@
--- Music4You Database Reference
--- PostgreSQL / Supabase schema documentation for the current app.
---
--- Purpose of this file:
--- - show the canonical table/column names the app expects
--- - document important constraints and RLS behavior
--- - make it easy to reason about discovery feed, profiles, reviews, and Album of the Day
---
--- Authoritative schema history now lives in:
--- - supabase/migrations/20260411000000_baseline.sql
---
--- Keep this file as a human-readable reference only. For real schema changes,
--- add a new migration in supabase/migrations instead of editing the dashboard.
+-- Music4You baseline schema
+-- This migration establishes the initial repo-tracked schema for the app.
 
 create extension if not exists "pgcrypto";
 
@@ -77,8 +66,6 @@ comment on policy "Profiles are public" on public.profiles is
 comment on policy "Update own profile" on public.profiles is
   'Authenticated users can update only their own profile row.';
 
--- The app also keeps profile creation resilient on the server side, but this
--- trigger documents the intended signup flow inside the database itself.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -289,9 +276,6 @@ comment on policy "Featured lists are public" on public.featured_lists is
 comment on policy "Featured list items are public" on public.featured_list_items is
   'Anyone can read list membership and ordering.';
 
--- Canonical editorial slugs used by the app:
--- - feed: discovery page cache
--- - daily-album: Album of the Day archive
 insert into public.featured_lists (slug, title)
 values
   ('feed', 'Feed'),
@@ -300,25 +284,3 @@ on conflict (slug) do update
 set
   title = excluded.title,
   updated_at = now();
-
--- ============================================================================
--- Operational notes
--- ============================================================================
---
--- 1. Album of the Day storage
---    The app stores each daily pick inside featured_list_items under the
---    `daily-album` list.
---
--- 2. Preventing repeats
---    The primary key (list_id, album_id) prevents the same album from being
---    inserted twice into the same list, so a previously used daily album
---    cannot be selected again unless that row is deleted.
---
--- 3. One row per day
---    The unique index on (list_id, rank) guarantees a single entry for each
---    day slot in the `daily-album` list.
---
--- 4. Write paths
---    Public clients read through RLS policies.
---    Server-side code writes albums and featured list data through the
---    Supabase service role, which bypasses RLS by design.

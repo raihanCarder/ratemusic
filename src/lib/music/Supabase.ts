@@ -52,8 +52,15 @@ export class Supabase implements AlbumDatabase {
           id,
         });
 
-      if (databaseError || !data) {
-        console.error("Error fetching album by provider ID:", databaseError);
+      if (databaseError) {
+        console.error(
+          "Error fetching album by provider ID:",
+          formatSupabaseError(databaseError),
+        );
+        return null;
+      }
+
+      if (!data) {
         return null;
       }
 
@@ -198,7 +205,7 @@ export class Supabase implements AlbumDatabase {
       });
 
       if (error || !data) {
-        console.error("Error fetching daily album:", error);
+        console.error("Error fetching daily album:", formatSupabaseError(error));
         return null;
       }
 
@@ -405,7 +412,7 @@ async function persistAlbumsToDatabase(
   });
 
   if (error || !data) {
-    console.error("Error upserting albums:", error);
+    console.error("Error upserting albums:", formatSupabaseError(error));
     return [];
   }
 

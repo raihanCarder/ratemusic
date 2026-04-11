@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { getSupabasePublishableKey, getSupabaseUrl } from "./env";
 
 function isSupabaseSessionCookie(name: string) {
   return name.startsWith("sb-") && name.includes("auth-token");
@@ -13,8 +14,8 @@ export async function hasSupabaseSessionCookie() {
 export async function createSupabaseServer() {
   const cookieStore = await cookies();
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    getSupabaseUrl(),
+    getSupabasePublishableKey(),
     {
       cookies: {
         getAll() {

@@ -107,10 +107,6 @@ export default function ProfilePageView({
                 sx={{ mt: 2 }}
               >
                 <Chip label={`Joined ${joinedDate}`} variant="outlined" />
-                <Chip
-                  label={editable ? "Editing enabled" : "Public profile"}
-                  variant="outlined"
-                />
               </Stack>
             </Box>
 
@@ -297,41 +293,6 @@ export default function ProfilePageView({
             ) : null}
           </Paper>
 
-          <Paper
-            sx={{
-              p: 3,
-              borderRadius: 4,
-              border: "1px solid",
-              borderColor: "divider",
-            }}
-          >
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>
-              Listening identity
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
-              Music4You is set up for a Letterboxd-style music presence. This panel is
-              where favorite albums, year-in-music snapshots, and taste signals can
-              grow next.
-            </Typography>
-          </Paper>
-
-          <Paper
-            sx={{
-              p: 3,
-              borderRadius: 4,
-              border: "1px solid",
-              borderColor: "divider",
-            }}
-          >
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>
-              What&apos;s next
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
-              {editable
-                ? "Use this page as the base for your public identity. Add a name, bio, and avatar now so the future review and list screens already feel personal."
-                : "This profile will expand with ratings, reviews, lists, and other visible signs of taste as those features ship."}
-            </Typography>
-          </Paper>
         </Box>
       </Container>
 

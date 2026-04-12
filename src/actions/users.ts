@@ -2,6 +2,7 @@
 
 import { createSupabaseAdmin } from "../auth/admin";
 import { createSupabaseServer } from "../auth/server";
+import { getUser } from "../auth/server";
 import { ensureProfileForUser } from "../lib/profiles/server";
 import { isValidUsername, normalizeUsername } from "../lib/profiles/validation";
 
@@ -125,5 +126,27 @@ export async function signOutUserAction() {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Something went wrong";
     return { errorMessage: message };
+  }
+}
+
+export async function deleteAccountAction() {
+  try {
+    const user = await getUser();
+
+    if (!user) {
+      return { errorMessage: "You must be signed in to delete your account." };
+    }
+
+    const admin = createSupabaseAdmin();
+
+    const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
+
+    if (deleteError) {
+      return { errorMessage: "Could not delete your account. Please try again." };
+    }
+
+    return { errorMessage: null, success: true };
+  } catch (err) {
+    return { errorMessage: "Something went wrong. Please try again." };
   }
 }

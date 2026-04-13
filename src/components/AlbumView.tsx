@@ -1,5 +1,6 @@
 "use client";
 
+import type { AlbumFavoritesPageData } from "@/src/lib/favorites/types";
 import type { AlbumData } from "@/src/lib/music/types";
 import type { AlbumRatingsPageData } from "@/src/lib/reviews/types";
 import Image from "next/image";
@@ -9,11 +10,13 @@ import Typography from "@mui/material/Typography";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
+import AlbumFavoriteSection from "./AlbumFavoriteSection";
 import AlbumRatingSection from "./AlbumRatingSection";
 import SongView from "./SongView";
 
 type AlbumViewProps = {
   album: AlbumData;
+  favorites: AlbumFavoritesPageData;
   ratings: AlbumRatingsPageData;
   isSignedIn: boolean;
   signUpHref: string;
@@ -21,6 +24,7 @@ type AlbumViewProps = {
 
 export default function AlbumView({
   album,
+  favorites,
   ratings,
   isSignedIn,
   signUpHref,
@@ -66,6 +70,13 @@ export default function AlbumView({
           {album.artist}
         </Typography>
       </Box>
+
+      <AlbumFavoriteSection
+        album={album}
+        favorites={favorites}
+        isSignedIn={isSignedIn}
+        signUpHref={signUpHref}
+      />
 
       <AlbumRatingSection
         album={album}

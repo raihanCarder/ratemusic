@@ -2,14 +2,15 @@
 
 **The album diary for people with real opinions.**
 
-Music4You is a Letterboxd-style music web app where you rate albums, build a public taste profile, and follow a daily editorial pick. Built as a full-stack Next.js project with a clean provider/database architecture ready for Spotify and Supabase at scale.
+Music4You is a Letterboxd-style music web app where you rate albums, pin favourite records to your public profile, and follow a daily editorial pick. Built as a full-stack Next.js project with a clean provider/database architecture ready for Spotify and Supabase at scale.
 
 ---
 
 ## 🌱 App Features
 
 - 🌟 **Rate albums 1–10** and have your score contribute to a community average.
-- 👤 **Build a public music identity** — custom display name, bio, avatar, and a shareable `/u/[username]` profile showing your four most recent ratings.
+- ❤️ **Pick four favourite albums** directly from album pages, with replacement flow when your profile is already full.
+- 👤 **Build a public music identity** — custom display name, bio, avatar, and a shareable `/u/[username]` profile showing your four favourite albums and four most recent ratings.
 - 📅 **Album of the Day** — one record gets the spotlight for the full day, then moves to an archive that never repeats until the catalog runs out.
 - 🔍 **Discovery feed** — a curated grid of albums to explore, backed by a swappable provider interface.
 - 🔐 **Authentication** — sign up, sign in, sign out via Supabase Auth with route-level middleware that keeps auth pages clean for signed-in users.
@@ -92,7 +93,9 @@ src/
 │   ├── AlbumCard.tsx             # Album cover card
 │   ├── AlbumGrid.tsx             # Responsive album grid layout
 │   ├── AlbumView.tsx             # Full album detail view
+│   ├── AlbumFavoriteSection.tsx  # Favourite toggle + replacement flow
 │   ├── AlbumRatingSection.tsx    # Rating form + community score display
+│   ├── FavoriteReplaceDialog.tsx # Choose which favourite album to swap out
 │   ├── SongView.tsx              # Individual track row
 │   ├── DailyAlbumPageView.tsx    # Orchestrator for daily page sections
 │   ├── ProfilePageView.tsx       # User profile layout
@@ -101,6 +104,7 @@ src/
 │
 ├── actions/                      # Next.js Server Actions
 │   ├── users.ts                  # Sign up, sign in, sign out
+│   ├── favorites.ts              # Add/remove/replace profile favourites
 │   ├── profiles.ts               # Update profile
 │   └── reviews.ts                # Submit album rating
 │
@@ -113,11 +117,15 @@ src/
 ├── lib/
 │   ├── db/
 │   │   └── errors.ts             # Shared DB error utilities (unique violation, etc.)
+│   ├── favorites/
+│   │   ├── types.ts              # Favourite album domain types
+│   │   └── server.ts             # Favourite fetch + mutation helpers
 │   ├── music/
 │   │   ├── types.ts              # Core contracts: AlbumData, MusicProvider, AlbumDatabase
 │   │   ├── Music.ts              # MusicService factory (singleton)
 │   │   ├── MusicService.ts       # Cache-first orchestrator for all music data
 │   │   ├── Supabase.ts           # AlbumDatabase implementation
+│   │   ├── server.ts             # Shared album-row persistence helpers for mutations
 │   │   ├── mappers.ts            # DB row ↔ domain type transformations
 │   │   ├── supabaseQueries.ts    # Low-level Supabase query builders
 │   │   ├── dailyAlbum.ts         # Date/time utilities for daily rotation
@@ -147,6 +155,7 @@ src/
 | `profiles`            | User profile data (username, display name, bio, avatar) |
 | `albums`              | Persisted album records with provider metadata          |
 | `reviews`             | User ratings (1–10) per album                           |
+| `profile_favorite_albums` | Up to four public favourite albums per user        |
 | `featured_lists`      | Named curated lists (feed, daily rotation)              |
 | `featured_list_items` | Albums assigned to a list with rank                     |
 
@@ -186,6 +195,12 @@ Reset to a clean database from migrations:
 npm run supabase:db:reset
 ```
 
+If you are connected to a hosted Supabase project, push new migrations after schema changes:
+
+```bash
+npm run supabase:db:push
+```
+
 ### 4. ▶️ Run the dev server
 
 ```bash
@@ -216,6 +231,8 @@ Open [http://localhost:3000](http://localhost:3000).
 ## 🗃️ Database Workflow
 
 Migrations live in `supabase/migrations` — the repo is the source of truth, not the dashboard. Use the dashboard for logs, data inspection, and auth settings only.
+
+When you pull code that adds a new schema-backed feature, make sure the matching migration has been applied before testing the UI. For this favourites feature, that means `20260412000000_profile_favorite_albums.sql` must exist in the target database or the app will fail when it queries `profile_favorite_albums`.
 
 ```bash
 # Create a new migration

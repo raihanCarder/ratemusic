@@ -3,6 +3,7 @@ import "server-only";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseAdmin } from "@/src/auth/admin";
 import { getUser } from "@/src/auth/server";
+import { getFavoriteAlbumsByUserId } from "@/src/lib/favorites/server";
 import { logger } from "@/src/lib/logger";
 import type {
   AccountNavUser,
@@ -104,7 +105,10 @@ async function getRecentRatingsByUserId(userId: string): Promise<RecentAlbumRati
 }
 
 async function mapProfileRowToProfile(row: ProfileRow): Promise<Profile> {
-  const recentRatings = await getRecentRatingsByUserId(row.id);
+  const [favoriteAlbums, recentRatings] = await Promise.all([
+    getFavoriteAlbumsByUserId(row.id),
+    getRecentRatingsByUserId(row.id),
+  ]);
   const preferredName = getPreferredProfileName({
     displayName: row.display_name,
     username: row.username,
@@ -119,6 +123,7 @@ async function mapProfileRowToProfile(row: ProfileRow): Promise<Profile> {
     createdAt: row.created_at,
     preferredName,
     initials: getProfileInitials(preferredName),
+    favoriteAlbums,
     recentRatings,
   };
 }

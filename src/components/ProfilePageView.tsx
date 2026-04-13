@@ -10,6 +10,7 @@ import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import type { FavoriteAlbum } from "@/src/lib/favorites/types";
 import type { Profile } from "@/src/lib/profiles/types";
 import { formatJoinedDate } from "@/src/lib/profiles/format";
 import ProfileAvatar from "./ProfileAvatar";
@@ -20,12 +21,147 @@ type ProfilePageViewProps = {
   editable?: boolean;
 };
 
+type ProfileAlbumGridSectionProps = {
+  title: string;
+  emptyMessage: string;
+  albums: FavoriteAlbum[];
+};
+
+function ProfileAlbumGridSection({
+  title,
+  emptyMessage,
+  albums,
+}: ProfileAlbumGridSectionProps) {
+  return (
+    <Paper
+      sx={{
+        p: 3,
+        borderRadius: 4,
+        border: "1px solid",
+        borderColor: "divider",
+      }}
+    >
+      <Typography variant="h6" sx={{ fontWeight: 800 }}>
+        {title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
+        {albums.length > 0
+          ? "The four records this listener wants front and center on their profile."
+          : emptyMessage}
+      </Typography>
+
+      {albums.length > 0 ? (
+        <Box
+          sx={{
+            display: "grid",
+            gap: 1.5,
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            mt: 2.5,
+          }}
+        >
+          {albums.map((album) => (
+            <Link
+              key={`${album.albumId}-${album.favoritedAt}`}
+              href={`/album/${album.albumId}`}
+              style={{ textDecoration: "none" }}
+            >
+              <Box
+                sx={{
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  bgcolor: "rgba(255,255,255,0.03)",
+                  transition: "transform 180ms ease, border-color 180ms ease",
+                  "&:hover": {
+                    transform: "translateY(-2px)",
+                    borderColor: "rgba(139, 224, 164, 0.36)",
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    aspectRatio: "1 / 1",
+                    bgcolor: "rgba(255,255,255,0.04)",
+                  }}
+                >
+                  {album.image ? (
+                    <Image
+                      src={album.image}
+                      alt={`${album.title} by ${album.artist}`}
+                      fill
+                      sizes="(max-width: 1200px) 50vw, 220px"
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        inset: 0,
+                        display: "grid",
+                        placeItems: "center",
+                        px: 2,
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle2"
+                        align="center"
+                        color="text.secondary"
+                      >
+                        No cover
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+
+                <Box sx={{ p: 1.5 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 700,
+                      lineHeight: 1.25,
+                      display: "-webkit-box",
+                      overflow: "hidden",
+                      WebkitBoxOrient: "vertical",
+                      WebkitLineClamp: 2,
+                    }}
+                  >
+                    {album.title}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      mt: 0.5,
+                      display: "block",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {album.artist}
+                  </Typography>
+                </Box>
+              </Box>
+            </Link>
+          ))}
+        </Box>
+      ) : null}
+    </Paper>
+  );
+}
+
 export default function ProfilePageView({
   profile,
   editable = false,
 }: ProfilePageViewProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const joinedDate = formatJoinedDate(profile.createdAt);
+  const favoriteAlbums = Array.isArray(profile?.favoriteAlbums)
+    ? profile.favoriteAlbums
+    : [];
   const recentRatings = Array.isArray(profile?.recentRatings)
     ? profile.recentRatings
     : [];
@@ -164,135 +300,146 @@ export default function ProfilePageView({
             </Typography>
           </Paper>
 
-          <Paper
-            sx={{
-              p: 3,
-              borderRadius: 4,
-              border: "1px solid",
-              borderColor: "divider",
-            }}
-          >
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>
-              Recent ratings
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
-              {recentRatings.length > 0
-                ? "The latest four album ratings from this profile. Click any cover to open the album page."
-                : editable
-                  ? "Once you start rating albums, your latest four will show up here for visitors."
-                  : "This profile has not rated any albums yet."}
-            </Typography>
+          <Stack spacing={3}>
+            <ProfileAlbumGridSection
+              title="Favourite albums"
+              emptyMessage={
+                editable
+                  ? "Pick up to four records from any album page and they will show up here."
+                  : "This profile has not picked favourite albums yet."
+              }
+              albums={favoriteAlbums}
+            />
 
-            {recentRatings.length > 0 ? (
-              <Box
-                sx={{
-                  display: "grid",
-                  gap: 1.5,
-                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                  mt: 2.5,
-                }}
-              >
-                {recentRatings.map((rating) => (
-                  <Link
-                    key={`${rating.albumId}-${rating.ratedAt}`}
-                    href={`/album/${rating.albumId}`}
-                    style={{ textDecoration: "none" }}
-                  >
-                    <Box
-                      sx={{
-                        borderRadius: 3,
-                        overflow: "hidden",
-                        border: "1px solid",
-                        borderColor: "divider",
-                        bgcolor: "rgba(255,255,255,0.03)",
-                        transition: "transform 180ms ease, border-color 180ms ease",
-                        "&:hover": {
-                          transform: "translateY(-2px)",
-                          borderColor: "rgba(139, 224, 164, 0.36)",
-                        },
-                      }}
+            <Paper
+              sx={{
+                p: 3,
+                borderRadius: 4,
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                Recent ratings
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
+                {recentRatings.length > 0
+                  ? "The latest four album ratings from this profile. Click any cover to open the album page."
+                  : editable
+                    ? "Once you start rating albums, your latest four will show up here for visitors."
+                    : "This profile has not rated any albums yet."}
+              </Typography>
+
+              {recentRatings.length > 0 ? (
+                <Box
+                  sx={{
+                    display: "grid",
+                    gap: 1.5,
+                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    mt: 2.5,
+                  }}
+                >
+                  {recentRatings.map((rating) => (
+                    <Link
+                      key={`${rating.albumId}-${rating.ratedAt}`}
+                      href={`/album/${rating.albumId}`}
+                      style={{ textDecoration: "none" }}
                     >
                       <Box
                         sx={{
-                          position: "relative",
-                          width: "100%",
-                          aspectRatio: "1 / 1",
-                          bgcolor: "rgba(255,255,255,0.04)",
+                          borderRadius: 3,
+                          overflow: "hidden",
+                          border: "1px solid",
+                          borderColor: "divider",
+                          bgcolor: "rgba(255,255,255,0.03)",
+                          transition: "transform 180ms ease, border-color 180ms ease",
+                          "&:hover": {
+                            transform: "translateY(-2px)",
+                            borderColor: "rgba(139, 224, 164, 0.36)",
+                          },
                         }}
                       >
-                        {rating.image ? (
-                          <Image
-                            src={rating.image}
-                            alt={`${rating.title} by ${rating.artist}`}
-                            fill
-                            sizes="(max-width: 1200px) 50vw, 220px"
-                            style={{ objectFit: "cover" }}
-                          />
-                        ) : (
-                          <Box
+                        <Box
+                          sx={{
+                            position: "relative",
+                            width: "100%",
+                            aspectRatio: "1 / 1",
+                            bgcolor: "rgba(255,255,255,0.04)",
+                          }}
+                        >
+                          {rating.image ? (
+                            <Image
+                              src={rating.image}
+                              alt={`${rating.title} by ${rating.artist}`}
+                              fill
+                              sizes="(max-width: 1200px) 50vw, 220px"
+                              style={{ objectFit: "cover" }}
+                            />
+                          ) : (
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                inset: 0,
+                                display: "grid",
+                                placeItems: "center",
+                                px: 2,
+                              }}
+                            >
+                              <Typography
+                                variant="subtitle2"
+                                align="center"
+                                color="text.secondary"
+                              >
+                                No cover
+                              </Typography>
+                            </Box>
+                          )}
+                        </Box>
+
+                        <Box sx={{ p: 1.5 }}>
+                          <Typography
+                            variant="subtitle2"
                             sx={{
-                              position: "absolute",
-                              inset: 0,
-                              display: "grid",
-                              placeItems: "center",
-                              px: 2,
+                              fontWeight: 700,
+                              lineHeight: 1.25,
+                              display: "-webkit-box",
+                              overflow: "hidden",
+                              WebkitBoxOrient: "vertical",
+                              WebkitLineClamp: 2,
                             }}
                           >
-                            <Typography
-                              variant="subtitle2"
-                              align="center"
-                              color="text.secondary"
-                            >
-                              No cover
-                            </Typography>
-                          </Box>
-                        )}
+                            {rating.title}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{
+                              mt: 0.5,
+                              display: "block",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {rating.artist}
+                          </Typography>
+                          <Chip
+                            label={`${rating.rating}/10`}
+                            size="small"
+                            sx={{
+                              mt: 1.25,
+                              borderRadius: 999,
+                              bgcolor: "rgba(139, 224, 164, 0.12)",
+                            }}
+                          />
+                        </Box>
                       </Box>
-
-                      <Box sx={{ p: 1.5 }}>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: 700,
-                            lineHeight: 1.25,
-                            display: "-webkit-box",
-                            overflow: "hidden",
-                            WebkitBoxOrient: "vertical",
-                            WebkitLineClamp: 2,
-                          }}
-                        >
-                          {rating.title}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{
-                            mt: 0.5,
-                            display: "block",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {rating.artist}
-                        </Typography>
-                        <Chip
-                          label={`${rating.rating}/10`}
-                          size="small"
-                          sx={{
-                            mt: 1.25,
-                            borderRadius: 999,
-                            bgcolor: "rgba(139, 224, 164, 0.12)",
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  </Link>
-                ))}
-              </Box>
-            ) : null}
-          </Paper>
-
+                    </Link>
+                  ))}
+                </Box>
+              ) : null}
+            </Paper>
+          </Stack>
         </Box>
       </Container>
 

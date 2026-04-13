@@ -1,17 +1,13 @@
 import "server-only";
 
 import { createSupabaseAdmin } from "@/src/auth/admin";
-import { isUniqueViolationError } from "@/src/lib/db/errors";
 import { logger } from "@/src/lib/logger";
+import { ensureAlbumRowId, getAlbumRowId } from "@/src/lib/music/server";
 import type {
   AlbumRatingsPageData,
   RateableAlbumData,
   SubmitAlbumRatingInput,
 } from "./types";
-
-type AlbumIdRow = {
-  id: string;
-};
 
 type ReviewRatingRow = {
   rating: number;
@@ -19,67 +15,6 @@ type ReviewRatingRow = {
 
 function roundToTwoDecimals(value: number) {
   return Math.round(value * 100) / 100;
-}
-
-function normalizeReleaseDate(value: string | null | undefined) {
-  if (!value) {
-    return null;
-  }
-
-  const dateObject = new Date(value);
-  return Number.isNaN(dateObject.getTime()) ? null : value;
-}
-
-async function getAlbumRowId(provider: string, providerAlbumId: string) {
-  const admin = createSupabaseAdmin();
-  const { data, error } = await admin
-    .from("albums")
-    .select("id")
-    .eq("provider", provider)
-    .eq("provider_album_id", providerAlbumId)
-    .maybeSingle();
-
-  if (error) {
-    logger.error("Error fetching album row for ratings:", error);
-    return null;
-  }
-
-  return (data as AlbumIdRow | null)?.id ?? null;
-}
-
-async function createAlbumRowForRating(album: RateableAlbumData) {
-  const admin = createSupabaseAdmin();
-  const { data, error } = await admin
-    .from("albums")
-    .insert({
-      provider: album.provider,
-      provider_album_id: album.id,
-      title: album.title,
-      artist: album.artist,
-      album_cover: album.image,
-      release_date: normalizeReleaseDate(album.releaseDate),
-      raw_payload: null,
-    })
-    .select("id")
-    .maybeSingle();
-
-  if (!error) {
-    return (data as AlbumIdRow | null)?.id ?? null;
-  }
-
-  if (isUniqueViolationError(error)) {
-    return getAlbumRowId(album.provider, album.id);
-  }
-
-  logger.error("Error creating album row for ratings:", error);
-  return null;
-}
-
-async function ensureAlbumRowIdForRating(album: RateableAlbumData) {
-  return (
-    (await getAlbumRowId(album.provider, album.id)) ??
-    (await createAlbumRowForRating(album))
-  );
 }
 
 export async function getAlbumRatingsPageData(
@@ -152,7 +87,7 @@ export async function upsertAlbumRatingForUser(
   userId: string,
   input: SubmitAlbumRatingInput,
 ) {
-  const albumRowId = await ensureAlbumRowIdForRating(input);
+  const albumRowId = await ensureAlbumRowId(input);
 
   if (!albumRowId) {
     return { errorMessage: "Could not save your rating right now." };

@@ -3,6 +3,7 @@ import { buildAuthHref } from "@/src/lib/auth/next";
 import { getUser } from "@/src/auth/server";
 import { notFound } from "next/navigation";
 import getMusicService from "@/src/lib/music/Music";
+import { getAlbumFavoritesPageData } from "@/src/lib/favorites/server";
 import { getAlbumRatingsPageData } from "@/src/lib/reviews/server";
 import MockData from "@/src/lib/music/testing/mockAlbumData";
 import { logger } from "@/src/lib/logger";
@@ -27,11 +28,15 @@ export default async function AlbumPage({
   if (!album) notFound();
 
   const user = await getUser();
-  const ratings = await getAlbumRatingsPageData(album, user?.id ?? null);
+  const [favorites, ratings] = await Promise.all([
+    getAlbumFavoritesPageData(album, user?.id ?? null),
+    getAlbumRatingsPageData(album, user?.id ?? null),
+  ]);
 
   return (
     <AlbumView
       album={album}
+      favorites={favorites}
       ratings={ratings}
       isSignedIn={Boolean(user)}
       signUpHref={buildAuthHref("/signup", `/album/${id}`)}

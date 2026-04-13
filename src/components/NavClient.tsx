@@ -47,6 +47,7 @@ export default function NavClient({ children }: NavClientProps) {
                 display: "flex",
                 alignItems: "center",
                 textDecoration: "none",
+                cursor: "pointer",
               }}
             >
               <Box

@@ -1,3 +1,5 @@
+import type { FavoriteAlbum } from "@/src/lib/favorites/types";
+
 export type ProfileRow = {
   id: string;
   username: string;
@@ -25,6 +27,7 @@ export type Profile = {
   createdAt: string;
   preferredName: string;
   initials: string;
+  favoriteAlbums: FavoriteAlbum[];
   recentRatings: RecentAlbumRating[];
 };
 

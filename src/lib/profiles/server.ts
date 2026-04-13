@@ -9,6 +9,7 @@ import type {
   AccountNavUser,
   Profile,
   ProfileRow,
+  ProfileStats,
   RecentAlbumRating,
   UpdateProfileInput,
 } from "./types";
@@ -25,6 +26,7 @@ import {
 
 const PROFILE_COLUMNS =
   "id, username, display_name, avatar_url, bio, created_at";
+const PROFILE_RECENT_RATINGS_LIMIT = 6;
 
 type EnsureProfileOptions = {
   preferredUsername?: string | null;
@@ -56,6 +58,21 @@ type RecentRatingRow = {
       }[]
     | null;
 };
+
+type ReviewStatsRow = {
+  rating: number;
+};
+
+function roundToTwoDecimals(value: number) {
+  return Math.round(value * 100) / 100;
+}
+
+function buildEmptyRatingDistribution() {
+  return Array.from({ length: 10 }, (_, index) => ({
+    score: index + 1,
+    count: 0,
+  }));
+}
 
 function mapRecentRatingRow(row: RecentRatingRow): RecentAlbumRating | null {
   const album = Array.isArray(row.album) ? row.album[0] : row.album;
@@ -92,7 +109,7 @@ async function getRecentRatingsByUserId(userId: string): Promise<RecentAlbumRati
     )
     .eq("user_id", userId)
     .order("updated_at", { ascending: false })
-    .limit(4);
+    .limit(PROFILE_RECENT_RATINGS_LIMIT);
 
   if (error) {
     logger.error("Error fetching recent profile ratings:", error);
@@ -104,8 +121,50 @@ async function getRecentRatingsByUserId(userId: string): Promise<RecentAlbumRati
     .filter((rating): rating is RecentAlbumRating => Boolean(rating));
 }
 
+async function getProfileStatsByUserId(userId: string): Promise<ProfileStats> {
+  const admin = createSupabaseAdmin();
+  const { data, error } = await admin
+    .from("reviews")
+    .select("rating")
+    .eq("user_id", userId);
+
+  if (error) {
+    logger.error("Error fetching profile stats:", error);
+    return {
+      reviewCount: 0,
+      averageRating: null,
+      distribution: buildEmptyRatingDistribution(),
+    };
+  }
+
+  const ratings = ((data as ReviewStatsRow[] | null) ?? [])
+    .map((row) => row.rating)
+    .filter((rating) => typeof rating === "number");
+  const distribution = buildEmptyRatingDistribution();
+
+  ratings.forEach((rating) => {
+    const bucket = distribution[rating - 1];
+
+    if (bucket) {
+      bucket.count += 1;
+    }
+  });
+
+  return {
+    reviewCount: ratings.length,
+    averageRating:
+      ratings.length > 0
+        ? roundToTwoDecimals(
+            ratings.reduce((total, rating) => total + rating, 0) / ratings.length,
+          )
+        : null,
+    distribution,
+  };
+}
+
 async function mapProfileRowToProfile(row: ProfileRow): Promise<Profile> {
-  const [favoriteAlbums, recentRatings] = await Promise.all([
+  const [stats, favoriteAlbums, recentRatings] = await Promise.all([
+    getProfileStatsByUserId(row.id),
     getFavoriteAlbumsByUserId(row.id),
     getRecentRatingsByUserId(row.id),
   ]);
@@ -123,6 +182,7 @@ async function mapProfileRowToProfile(row: ProfileRow): Promise<Profile> {
     createdAt: row.created_at,
     preferredName,
     initials: getProfileInitials(preferredName),
+    stats,
     favoriteAlbums,
     recentRatings,
   };

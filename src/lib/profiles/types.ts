@@ -18,6 +18,15 @@ export type RecentAlbumRating = {
   ratedAt: string;
 };
 
+export type ProfileStats = {
+  reviewCount: number;
+  averageRating: number | null;
+  distribution: {
+    score: number;
+    count: number;
+  }[];
+};
+
 export type Profile = {
   id: string;
   username: string;
@@ -27,6 +36,7 @@ export type Profile = {
   createdAt: string;
   preferredName: string;
   initials: string;
+  stats: ProfileStats;
   favoriteAlbums: FavoriteAlbum[];
   recentRatings: RecentAlbumRating[];
 };

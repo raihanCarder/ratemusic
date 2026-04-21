@@ -6,6 +6,7 @@ export type ProfileRow = {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
+  email_confirmed: boolean;
   created_at: string;
 };
 
@@ -46,6 +47,16 @@ export type AccountNavUser = {
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
+  preferredName: string;
+  initials: string;
+};
+
+export type CommunityProfileListItem = {
+  id: string;
+  username: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  createdAt: string;
   preferredName: string;
   initials: string;
 };

@@ -79,6 +79,7 @@ export default function NavClient({ children }: NavClientProps) {
             }}
           >
             <NavLink href="/feed" name="Discover" />
+            <NavLink href="/community" name="Community" />
             <NavLink href="/album-of-the-day" name="Album of the Day" />
           </Box>
 

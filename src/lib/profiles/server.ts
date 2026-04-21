@@ -7,6 +7,7 @@ import { getFavoriteAlbumsByUserId } from "@/src/lib/favorites/server";
 import { logger } from "@/src/lib/logger";
 import type {
   AccountNavUser,
+  CommunityProfileListItem,
   Profile,
   ProfileRow,
   ProfileStats,
@@ -25,7 +26,7 @@ import {
 } from "./validation";
 
 const PROFILE_COLUMNS =
-  "id, username, display_name, avatar_url, bio, created_at";
+  "id, username, display_name, avatar_url, bio, email_confirmed, created_at";
 const PROFILE_RECENT_RATINGS_LIMIT = 6;
 
 type EnsureProfileOptions = {
@@ -62,6 +63,11 @@ type RecentRatingRow = {
 type ReviewStatsRow = {
   rating: number;
 };
+
+type CommunityProfileRow = Pick<
+  ProfileRow,
+  "id" | "username" | "display_name" | "avatar_url" | "email_confirmed" | "created_at"
+>;
 
 function roundToTwoDecimals(value: number) {
   return Math.round(value * 100) / 100;
@@ -199,6 +205,25 @@ function mapProfileToNavUser(profile: Profile): AccountNavUser {
   };
 }
 
+function mapProfileRowToCommunityProfile(
+  row: CommunityProfileRow,
+): CommunityProfileListItem {
+  const preferredName = getPreferredProfileName({
+    displayName: row.display_name,
+    username: row.username,
+  });
+
+  return {
+    id: row.id,
+    username: row.username,
+    displayName: row.display_name,
+    avatarUrl: row.avatar_url,
+    createdAt: row.created_at,
+    preferredName,
+    initials: getProfileInitials(preferredName),
+  };
+}
+
 async function getProfileById(id: string) {
   const admin = createSupabaseAdmin();
   const { data, error } = await admin
@@ -303,6 +328,7 @@ export async function ensureProfileForUser(
     getSafeAvatarUrl(options.avatarUrl) ??
     getSafeAvatarUrl(getUserMetadataValue(user, "avatar_url")) ??
     getSafeAvatarUrl(getUserMetadataValue(user, "picture"));
+  const emailConfirmed = Boolean(user.email_confirmed_at);
 
   const { data, error } = await admin
     .from("profiles")
@@ -313,6 +339,7 @@ export async function ensureProfileForUser(
         display_name: displayName,
         avatar_url: avatarUrl,
         bio: null,
+        email_confirmed: emailConfirmed,
       },
       { onConflict: "id" },
     )
@@ -337,6 +364,7 @@ export async function ensureProfileForUser(
           display_name: displayName,
           avatar_url: avatarUrl,
           bio: null,
+          email_confirmed: emailConfirmed,
         },
         { onConflict: "id" },
       )
@@ -369,6 +397,24 @@ export async function getCurrentProfile() {
 export async function getCurrentAccountNavUser() {
   const profile = await getCurrentProfile();
   return profile ? mapProfileToNavUser(profile) : null;
+}
+
+export async function getCommunityProfiles(): Promise<CommunityProfileListItem[]> {
+  const admin = createSupabaseAdmin();
+  const { data, error } = await admin
+    .from("profiles")
+    .select("id, username, display_name, avatar_url, email_confirmed, created_at")
+    .eq("email_confirmed", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    logger.error("Error fetching community profiles:", error);
+    return [];
+  }
+
+  return ((data as CommunityProfileRow[] | null) ?? []).map((row) =>
+    mapProfileRowToCommunityProfile(row),
+  );
 }
 
 export async function getPublicProfileByUsername(username: string) {

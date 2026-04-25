@@ -7,6 +7,9 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import DailyAlbumPageView from "@/src/components/DailyAlbumPageView";
 import getMusicService from "@/src/lib/music/Music";
+import { getUser } from "@/src/auth/server";
+import { buildAuthHref } from "@/src/lib/auth/next";
+import { getAlbumRatingsPageData } from "@/src/lib/reviews/server";
 
 export const metadata: Metadata = {
   title: "Album of the Day | Music4You",
@@ -55,5 +58,15 @@ export default async function DailyAlbumPage() {
     );
   }
 
-  return <DailyAlbumPageView dailyAlbum={dailyAlbum} />;
+  const user = await getUser();
+  const ratings = await getAlbumRatingsPageData(dailyAlbum.today.album, user?.id ?? null);
+
+  return (
+    <DailyAlbumPageView
+      dailyAlbum={dailyAlbum}
+      ratings={ratings}
+      isSignedIn={Boolean(user)}
+      signUpHref={buildAuthHref("/signup", "/album-of-the-day")}
+    />
+  );
 }
